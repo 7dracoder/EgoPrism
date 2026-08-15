@@ -10,8 +10,10 @@ export async function loadServerComparison(): Promise<ComparisonData> {
   if (!endpoint) return fallback;
 
   try {
-    const response = await fetch(endpoint, {
-      next: { revalidate: 60 },
+    const url = new URL(endpoint);
+    url.searchParams.set("dataset", "real-12000-v1");
+    const response = await fetch(url, {
+      cache: "no-store",
       signal: AbortSignal.timeout(12_000),
     });
     if (!response.ok) return fallback;

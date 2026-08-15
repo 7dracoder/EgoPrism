@@ -21,7 +21,7 @@ zero duplicated IDs—selected from that cache. Three source episodes were
 excluded: one empty image array and two corrupt image blobs. Nothing is expanded
 or synthesized to reach the displayed count.
 
-![Hallmark Cobalt EgoPrism dashboard showing subset B winning on visual and motion coverage](assets/dashboard-web.png)
+![Hallmark Cobalt EgoPrism dashboard showing the 12,000-episode real-data comparison](assets/dashboard-web-real.jpg)
 
 This is Track 2 (Quantitative Diversity Measurement). It is a data-selection signal, not a claim that a higher score trains a better robot.
 

@@ -44,6 +44,11 @@ function occupancyCount(items: Occupancy[], cluster: number) {
   return items.find((item) => item.cluster === cluster)?.count ?? 0;
 }
 
+const compactCount = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
 function projectionSample(episodes: Episode[], maximum: number) {
   if (episodes.length <= maximum) return episodes;
 
@@ -220,7 +225,9 @@ function PairedBars({
                 <i data-subset="A" style={{ "--bar-width": `${(countA / maxCount) * 100}%` } as CSSProperties} />
                 <i data-subset="B" style={{ "--bar-width": `${(countB / maxCount) * 100}%` } as CSSProperties} />
               </div>
-              <small>{countA.toLocaleString()} / {countB.toLocaleString()}</small>
+              <small title={`${countA.toLocaleString()} / ${countB.toLocaleString()}`}>
+                {compactCount.format(countA)} / {compactCount.format(countB)}
+              </small>
             </div>
           );
         })}

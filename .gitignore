@@ -15,3 +15,4 @@ artifacts/hallmark-*.png
 .env
 data/episodes/
 *.zarr
+.vercel
