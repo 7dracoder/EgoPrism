@@ -2702,8 +2702,9 @@ h3 {
 
 .episode-inspector__details > strong {
   color: var(--color-ink);
-  font-family: var(--font-display);
-  font-size: var(--text-md);
+  font-family: var(--font-mono);
+  font-size: clamp(var(--text-sm), 1.4vw, var(--text-base));
+  letter-spacing: -0.035em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3502,5 +3503,42 @@ h3 {
 
   .episode-thumbnails button > span {
     height: 2rem;
+  }
+
+  .paired-charts {
+    gap: var(--space-sm);
+    padding-block: var(--space-xs) var(--space-2xs);
+  }
+
+  .paired-chart + .paired-chart {
+    padding-inline-start: var(--space-sm);
+  }
+
+  .paired-chart__rows {
+    gap: 0;
+    grid-auto-rows: minmax(0, 1fr);
+    overflow: hidden;
+    padding-block-start: var(--space-2xs);
+  }
+
+  .paired-chart__row {
+    line-height: 1;
+  }
+
+  .paired-chart__row > div {
+    gap: 1px;
+  }
+
+  .paired-chart__row i {
+    height: 0.25rem;
+  }
+
+  .cluster-summary {
+    padding-block-start: var(--space-2xs);
+  }
+
+  .cluster-summary strong {
+    font-size: var(--text-base);
+    line-height: 1;
   }
 }

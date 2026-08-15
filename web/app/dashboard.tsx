@@ -6,7 +6,6 @@ import { Database, Mic } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import DataDrawer, { type UploadStatus } from "./data-drawer";
-import { scaleDemoComparison, SCALED_INITIAL_SOURCE } from "./data/scale-demo";
 import type { ComparisonData, Episode } from "./data/types";
 import { isComparisonData } from "./data/validate";
 import {
@@ -34,8 +33,10 @@ const VoiceAgent = dynamic(() => import("./voice-agent"), {
   ),
 });
 
-function isExpandedInitialData(data: ComparisonData) {
-  return data.source === SCALED_INITIAL_SOURCE;
+function initialDatasetName(data: ComparisonData) {
+  return data.source === "modal-real"
+    ? `${data.episodes.length.toLocaleString()} real EgoVerse episodes`
+    : "Bundled comparison";
 }
 
 function firstEpisode(data: ComparisonData) {
@@ -65,13 +66,10 @@ function CompactScore({
 }
 
 export default function Dashboard({ data }: DashboardProps) {
-  const initialData = useMemo(() => scaleDemoComparison(data), [data]);
-  const initialExpanded = useMemo(() => isExpandedInitialData(initialData), [initialData]);
+  const initialData = data;
   const [activeData, setActiveData] = useState(initialData);
   const [dataOrigin, setDataOrigin] = useState<DataOrigin>("initial");
-  const [datasetName, setDatasetName] = useState(
-    initialExpanded ? "12K fold-clothes summary corpus" : "Modal comparison",
-  );
+  const [datasetName, setDatasetName] = useState(initialDatasetName(initialData));
   const [selectedEpisodeId, setSelectedEpisodeId] = useState(firstEpisode(initialData).id);
   const [drawer, setDrawer] = useState<DrawerKind>(null);
   const [mobilePanel, setMobilePanel] = useState<PanelId>("projection");
@@ -85,11 +83,12 @@ export default function Dashboard({ data }: DashboardProps) {
     [activeData.episodes],
   );
   const selectedEpisode = episodeById.get(selectedEpisodeId) ?? firstEpisode(activeData);
-  const isExpandedInitial = dataOrigin === "initial" && initialExpanded;
+  const isInitialDataset = dataOrigin === "initial";
+  const isProductionDataset = isInitialDataset && activeData.source === "modal-real";
   const sourceLabel = dataOrigin === "uploaded"
     ? "Uploaded JSON"
-    : activeData.source === SCALED_INITIAL_SOURCE
-      ? "12K active dataset"
+    : activeData.source === "modal-real"
+      ? "Modal · real data"
       : activeData.source === "modal"
         ? "Modal live"
         : "Bundled cache";
@@ -143,7 +142,7 @@ export default function Dashboard({ data }: DashboardProps) {
   const resetDemo = () => {
     setActiveData(initialData);
     setDataOrigin("initial");
-    setDatasetName(initialExpanded ? "12K fold-clothes summary corpus" : "Modal comparison");
+    setDatasetName(initialDatasetName(initialData));
     setSelectedEpisodeId(firstEpisode(initialData).id);
     setMobilePanel("projection");
     setUploadStatus({ state: "idle", message: "Bundled comparison restored." });
@@ -236,7 +235,8 @@ export default function Dashboard({ data }: DashboardProps) {
         open={drawer === "data"}
         data={activeData}
         datasetName={datasetName}
-        isExpandedInitial={isExpandedInitial}
+        isInitialDataset={isInitialDataset}
+        isProductionDataset={isProductionDataset}
         uploadStatus={uploadStatus}
         onUpload={(file) => void handleUpload(file)}
         onReset={resetDemo}

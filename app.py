@@ -321,9 +321,10 @@ every robot policy will succeed more often. Scene and lab labels are
 explanatory, not score inputs. The optional ElevenLabs briefing reads this
 result aloud; it is not part of the score.
 
-**This demo slice.** Schema-faithful synthetic EgoVerse episodes (same arrays,
-embodiment, and intrinsics as the live format). Point the manifests at real
-`.zarr` stores to score a production subset.
+**Data source.** This reference surface reads the active feature cache. The
+production web comparison is built from 12,000 independent EgoVerse R2 episodes;
+local manifests can still point at a smaller validation cache when testing the
+reader.
 
 **Visual source.** {labeled['visual_source'].value_counts().to_dict()}
             """

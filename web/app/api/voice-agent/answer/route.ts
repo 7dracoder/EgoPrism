@@ -1,4 +1,5 @@
-import { classifyVoiceQuestion, voiceAnswers } from "../knowledge";
+import { loadServerComparison } from "../../../data/server-comparison";
+import { classifyVoiceQuestion, voiceAnswer } from "../knowledge";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,8 +22,9 @@ export async function POST(request: Request) {
     }
 
     const topic = classifyVoiceQuestion(question);
+    const answer = voiceAnswer(topic, await loadServerComparison());
     return Response.json(
-      { topic, answer: voiceAnswers[topic] },
+      { topic, answer },
       { headers: { "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { BarChart3, Eye, Grid3X3, ImageIcon } from "lucide-react";
-import { useMemo, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import type { ComparisonData, Episode, Occupancy, SubsetSummary } from "./data/types";
 
@@ -43,6 +43,11 @@ function PanelHeader({
 function occupancyCount(items: Occupancy[], cluster: number) {
   return items.find((item) => item.cluster === cluster)?.count ?? 0;
 }
+
+const compactCount = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
 
 function projectionSample(episodes: Episode[], maximum: number) {
   if (episodes.length <= maximum) return episodes;
@@ -220,7 +225,9 @@ function PairedBars({
                 <i data-subset="A" style={{ "--bar-width": `${(countA / maxCount) * 100}%` } as CSSProperties} />
                 <i data-subset="B" style={{ "--bar-width": `${(countB / maxCount) * 100}%` } as CSSProperties} />
               </div>
-              <small>{countA.toLocaleString()} / {countB.toLocaleString()}</small>
+              <small title={`${countA.toLocaleString()} / ${countB.toLocaleString()}`}>
+                {compactCount.format(countA)} / {compactCount.format(countB)}
+              </small>
             </div>
           );
         })}
@@ -314,11 +321,19 @@ export function ScoresPanel({ data }: { data: ComparisonData }) {
 }
 
 function canDisplayPreview(preview: string) {
-  return preview.startsWith("/episodes/") || preview.startsWith("data:image/");
+  return (
+    preview.startsWith("/episodes/") ||
+    preview.startsWith("data:image/") ||
+    preview.startsWith("https://ts5789--egoprism-api-preview.modal.run")
+  );
 }
 
 function EpisodePreview({ episode, compact = false }: { episode: Episode; compact?: boolean }) {
-  return canDisplayPreview(episode.preview) ? (
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => setFailed(false), [episode.preview]);
+
+  return canDisplayPreview(episode.preview) && !failed ? (
     <Image
       src={episode.preview}
       alt={`Representative frame from ${episode.id}`}
@@ -327,9 +342,10 @@ function EpisodePreview({ episode, compact = false }: { episode: Episode; compac
       quality={90}
       unoptimized={episode.preview.startsWith("data:image/")}
       loading={compact ? "lazy" : "eager"}
+      onError={() => setFailed(true)}
     />
   ) : (
-    <span className="episode-placeholder"><ImageIcon aria-hidden="true" size={compact ? 16 : 24} />No local preview</span>
+    <span className="episode-placeholder"><ImageIcon aria-hidden="true" size={compact ? 16 : 24} />Preview restricted</span>
   );
 }
 
@@ -364,7 +380,7 @@ export function EpisodesPanel({
         <div className="episode-inspector__details">
           <span>Selected episode</span>
           <strong>{selectedEpisode.id}</strong>
-          <p>{label(selectedEpisode.scene)} · {label(selectedEpisode.lab)}</p>
+          <p>{label(selectedEpisode.task || selectedEpisode.scene)} · {label(selectedEpisode.source || selectedEpisode.lab)}</p>
           <dl>
             <div><dt>visual cluster</dt><dd>C{selectedEpisode.visualCluster + 1}</dd></div>
             <div><dt>motion cluster</dt><dd>{selectedEpisode.motionCluster >= 0 ? `C${selectedEpisode.motionCluster + 1}` : "—"}</dd></div>

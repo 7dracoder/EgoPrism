@@ -25,6 +25,8 @@ export type Episode = {
   subset: "A" | "B";
   lab: string;
   scene: string;
+  source?: string;
+  task?: string;
   durationSeconds: number;
   visualCluster: number;
   motionCluster: number;
