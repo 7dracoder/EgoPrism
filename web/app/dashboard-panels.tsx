@@ -323,7 +323,8 @@ function EpisodePreview({ episode, compact = false }: { episode: Episode; compac
       src={episode.preview}
       alt={`Representative frame from ${episode.id}`}
       fill
-      sizes={compact ? "8rem" : "(max-width: 52rem) 45vw, 18vw"}
+      sizes={compact ? "8rem" : "(max-width: 52rem) 45vw, 24vw"}
+      quality={90}
       unoptimized={episode.preview.startsWith("data:image/")}
       loading={compact ? "lazy" : "eager"}
     />

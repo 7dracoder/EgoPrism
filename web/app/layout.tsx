@@ -43,7 +43,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1731,
         height: 909,
-        alt: "EgoPrism comparison showing subset A at 17.5 and subset B at 77.1",
+        alt: "EgoPrism comparison showing subset A at 37.5 and subset B at 82.8",
       },
     ],
   },

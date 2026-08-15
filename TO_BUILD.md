@@ -48,8 +48,10 @@ contract is a fixed, single-viewport evidence cockpit:
   page-level vertical scrolling.
 - Make projection points and episode thumbnails selectable and linked to the same
   active episode.
-- Default to a deterministic 12,000-record synthetic summary corpus—6,000 per
-  subset—expanded from the 32 schema-faithful raw prototypes. Accept a
+- Default to a deterministic 12,000-row interface index—6,000 per subset—
+  expanded from 16 scored source episodes with clear 640×480 preview frames.
+  Preserve source-episode confidence intervals so repeated rows do not create
+  false statistical precision. Accept a
   schema-compatible comparison JSON file and immediately redraw every panel in
   the browser.
 - Put the active dataset summary, upload/reset controls, and complete episode
@@ -64,7 +66,7 @@ contract is a fixed, single-viewport evidence cockpit:
 
 ## Build status
 
-- [x] Schema-faithful 32-episode demo fixture and manifests.
+- [x] Sixteen extracted fold-clothes source episodes with representative frames.
 - [x] Deterministic 12,000-record web scale corpus with full-data aggregate
   charts, a 320-point stratified projection, and a searchable paginated index.
 - [x] Deterministic extraction, feature, clustering, scoring, and bootstrap pipeline.
@@ -74,7 +76,7 @@ contract is a fixed, single-viewport evidence cockpit:
 - [x] Hallmark/Cobalt Next.js dashboard with real episode frames.
 - [x] Fixed single-viewport four-panel visualization cockpit with no page-level
   scrolling at supported desktop and mobile sizes.
-- [x] Browser-local comparison JSON upload, strict runtime validation, demo reset,
+- [x] Browser-local comparison JSON upload, strict runtime validation, initial-data reset,
   dataset summary, and complete dataset side drawer.
 - [x] Server-only ElevenLabs briefing route and non-secret health endpoint.
 - [x] Continuous grounded voice analyst with automatic listen-after-answer, an
@@ -90,9 +92,9 @@ contract is a fixed, single-viewport evidence cockpit:
 
 - `pytest -q` passes the Python pipeline and web-payload tests.
 - `npm run typecheck` and `npm run build` pass under `web/`.
-- Modal `/summary` responds with the 32 raw demo prototypes and deterministic
-  winner; the web layer recognizes that demo payload and expands it to 12,000
-  unique synthetic summaries before rendering.
+- Modal `/summary` responds with the 16 scored source episodes and deterministic
+  winner; the web layer expands them to a 12,000-row interface index while
+  retaining the source confidence intervals and preview mappings.
 - Vercel `/api/health` reports Modal and ElevenLabs configured without returning
   secret values.
 - Vercel `/api/voice` returns MP3 audio from the fixed result briefing.
@@ -106,8 +108,8 @@ contract is a fixed, single-viewport evidence cockpit:
 
 ## Before submission
 
-1. Replace synthetic fixture manifests with an approved real slice if competition
-   rules or judging expectations require it; never silently mix fixture and real data.
+1. Confirm the sixteen extracted source episodes are cleared for the submission,
+   and describe 12,000 as interface summary rows rather than independent recordings.
 2. Record a 60–90 second demo: decision → evidence → episode trace → ask the
    voice analyst why B won.
 3. Explain the pooled transform, score formula, winner rule, and limitation.

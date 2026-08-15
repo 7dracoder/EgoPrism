@@ -1,583 +1,343 @@
 {
   "project": "EgoPrism",
   "source": "bundled-cache",
-  "task": "fold-clothes",
+  "task": "fold_clothes",
   "quality": "visual + motion",
   "winner": "B",
   "statement": "Subset B covers more distinct visual contexts and manipulation patterns than subset A.",
   "notes": [],
-  "clusterCount": 5,
+  "clusterCount": 4,
   "visualOnly": false,
   "subsetA": {
     "name": "A",
-    "score": 17.4699,
+    "score": 37.5,
     "ci": [
-      7.2631,
-      21.2905
+      13.5891,
+      39.032
     ],
-    "episodes": 16,
+    "episodes": 8,
     "scenes": 1,
     "labs": 1,
-    "durationSeconds": 48.0,
-    "visualEntropy": 0.0,
-    "motionEntropy": 0.349398,
-    "visualClustersUsed": 1,
-    "motionClustersUsed": 2,
+    "durationSeconds": 767.3,
+    "visualEntropy": 0.75,
+    "motionEntropy": 0.0,
+    "visualClustersUsed": 3,
+    "motionClustersUsed": 1,
     "visualOccupancy": [
       {
         "cluster": 0,
-        "count": 16
-      },
-      {
-        "cluster": 1,
-        "count": 0
-      },
-      {
-        "cluster": 2,
-        "count": 0
-      },
-      {
-        "cluster": 3,
-        "count": 0
-      },
-      {
-        "cluster": 4,
-        "count": 0
-      }
-    ],
-    "motionOccupancy": [
-      {
-        "cluster": 0,
         "count": 0
       },
       {
         "cluster": 1,
-        "count": 12
+        "count": 2
       },
       {
         "cluster": 2,
-        "count": 0
-      },
-      {
-        "cluster": 3,
         "count": 4
       },
       {
-        "cluster": 4,
-        "count": 0
-      }
-    ],
-    "medianIdleFraction": 0.646067
-  },
-  "subsetB": {
-    "name": "B",
-    "score": 77.0789,
-    "ci": [
-      55.2636,
-      80.3741
-    ],
-    "episodes": 16,
-    "scenes": 8,
-    "labs": 4,
-    "durationSeconds": 48.0,
-    "visualEntropy": 0.861353,
-    "motionEntropy": 0.680225,
-    "visualClustersUsed": 5,
-    "motionClustersUsed": 3,
-    "visualOccupancy": [
-      {
-        "cluster": 0,
-        "count": 8
-      },
-      {
-        "cluster": 1,
-        "count": 2
-      },
-      {
-        "cluster": 2,
-        "count": 2
-      },
-      {
         "cluster": 3,
-        "count": 2
-      },
-      {
-        "cluster": 4,
         "count": 2
       }
     ],
     "motionOccupancy": [
       {
         "cluster": 0,
-        "count": 5
-      },
-      {
-        "cluster": 1,
         "count": 0
       },
       {
+        "cluster": 1,
+        "count": 8
+      },
+      {
         "cluster": 2,
-        "count": 5
+        "count": 0
       },
       {
         "cluster": 3,
         "count": 0
-      },
-      {
-        "cluster": 4,
-        "count": 6
       }
     ],
-    "medianIdleFraction": 0.0
+    "medianIdleFraction": 0.418396
+  },
+  "subsetB": {
+    "name": "B",
+    "score": 82.782,
+    "ci": [
+      52.7486,
+      86.6729
+    ],
+    "episodes": 8,
+    "scenes": 8,
+    "labs": 1,
+    "durationSeconds": 793.967,
+    "visualEntropy": 0.75,
+    "motionEntropy": 0.905639,
+    "visualClustersUsed": 3,
+    "motionClustersUsed": 4,
+    "visualOccupancy": [
+      {
+        "cluster": 0,
+        "count": 2
+      },
+      {
+        "cluster": 1,
+        "count": 4
+      },
+      {
+        "cluster": 2,
+        "count": 0
+      },
+      {
+        "cluster": 3,
+        "count": 2
+      }
+    ],
+    "motionOccupancy": [
+      {
+        "cluster": 0,
+        "count": 1
+      },
+      {
+        "cluster": 1,
+        "count": 3
+      },
+      {
+        "cluster": 2,
+        "count": 3
+      },
+      {
+        "cluster": 3,
+        "count": 1
+      }
+    ],
+    "medianIdleFraction": 0.414654
   },
   "episodes": [
     {
-      "id": "fold_a_001",
+      "id": "2025-09-20-17-42-51-000000",
       "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 3,
-      "x": 6.012098,
-      "y": 18.440638,
-      "novelty": 7.369103,
-      "idleFraction": 0.977528,
-      "preview": "/episodes/fold_a_001.jpg"
-    },
-    {
-      "id": "fold_a_002",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 5.652175,
-      "y": 18.13958,
-      "novelty": 7.559042,
-      "idleFraction": 0.651685,
-      "preview": "/episodes/fold_a_002.jpg"
-    },
-    {
-      "id": "fold_a_003",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 7.183094,
-      "y": 17.390295,
-      "novelty": 7.313858,
-      "idleFraction": 0.550562,
-      "preview": "/episodes/fold_a_003.jpg"
-    },
-    {
-      "id": "fold_a_004",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 5.110106,
-      "y": 16.800882,
-      "novelty": 7.66883,
-      "idleFraction": 0.640449,
-      "preview": "/episodes/fold_a_004.jpg"
-    },
-    {
-      "id": "fold_a_005",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 3,
-      "x": 7.509207,
-      "y": 18.260664,
-      "novelty": 7.477757,
-      "idleFraction": 0.988764,
-      "preview": "/episodes/fold_a_005.jpg"
-    },
-    {
-      "id": "fold_a_006",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 6.68188,
-      "y": 18.786602,
-      "novelty": 7.405588,
-      "idleFraction": 0.674157,
-      "preview": "/episodes/fold_a_006.jpg"
-    },
-    {
-      "id": "fold_a_007",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 6.289828,
-      "y": 17.205961,
-      "novelty": 7.433975,
-      "idleFraction": 0.550562,
-      "preview": "/episodes/fold_a_007.jpg"
-    },
-    {
-      "id": "fold_a_008",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 5.429511,
-      "y": 19.07283,
-      "novelty": 7.508031,
-      "idleFraction": 0.640449,
-      "preview": "/episodes/fold_a_008.jpg"
-    },
-    {
-      "id": "fold_a_009",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 3,
-      "x": 8.259156,
-      "y": 17.607758,
-      "novelty": 7.38684,
-      "idleFraction": 0.994382,
-      "preview": "/episodes/fold_a_009.jpg"
-    },
-    {
-      "id": "fold_a_010",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 4.703196,
-      "y": 18.475252,
-      "novelty": 7.490783,
-      "idleFraction": 0.668539,
-      "preview": "/episodes/fold_a_010.jpg"
-    },
-    {
-      "id": "fold_a_011",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 6.467,
-      "y": 18.033886,
-      "novelty": 7.228783,
-      "idleFraction": 0.550562,
-      "preview": "/episodes/fold_a_011.jpg"
-    },
-    {
-      "id": "fold_a_012",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 7.659459,
-      "y": 16.934757,
-      "novelty": 7.662209,
-      "idleFraction": 0.640449,
-      "preview": "/episodes/fold_a_012.jpg"
-    },
-    {
-      "id": "fold_a_013",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 3,
-      "x": 5.746603,
-      "y": 16.775545,
-      "novelty": 7.475882,
-      "idleFraction": 1.0,
-      "preview": "/episodes/fold_a_013.jpg"
-    },
-    {
-      "id": "fold_a_014",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 7.364211,
-      "y": 16.49161,
-      "novelty": 7.359788,
-      "idleFraction": 0.685393,
-      "preview": "/episodes/fold_a_014.jpg"
-    },
-    {
-      "id": "fold_a_015",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 4.992,
-      "y": 17.37833,
-      "novelty": 7.615909,
-      "idleFraction": 0.550562,
-      "preview": "/episodes/fold_a_015.jpg"
-    },
-    {
-      "id": "fold_a_016",
-      "subset": "A",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 1,
-      "x": 7.52332,
-      "y": 19.106096,
-      "novelty": 7.30308,
-      "idleFraction": 0.640449,
-      "preview": "/episodes/fold_a_016.jpg"
-    },
-    {
-      "id": "fold_b_001",
-      "subset": "B",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 0,
-      "x": 6.065156,
-      "y": 19.533907,
-      "novelty": 19.872092,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_001.jpg"
-    },
-    {
-      "id": "fold_b_002",
-      "subset": "B",
-      "lab": "lab_b",
-      "scene": "scene_02",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 0,
-      "x": 6.287932,
-      "y": 16.43112,
-      "novelty": 28.045179,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_002.jpg"
-    },
-    {
-      "id": "fold_b_003",
-      "subset": "B",
-      "lab": "lab_c",
-      "scene": "scene_03",
-      "durationSeconds": 3.0,
-      "visualCluster": 3,
-      "motionCluster": 2,
-      "x": 5.048091,
-      "y": 18.020033,
-      "novelty": 13.904676,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_003.jpg"
-    },
-    {
-      "id": "fold_b_004",
-      "subset": "B",
-      "lab": "lab_d",
-      "scene": "scene_04",
-      "durationSeconds": 3.0,
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 93.6,
       "visualCluster": 1,
-      "motionCluster": 4,
-      "x": 4.988138,
-      "y": 18.860443,
-      "novelty": 14.072624,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_004.jpg"
+      "motionCluster": 1,
+      "x": 15.047811,
+      "y": 15.554166,
+      "novelty": 4.617386,
+      "idleFraction": 0.418075,
+      "preview": "/episodes/2025-09-20-17-42-51-000000.jpg"
     },
     {
-      "id": "fold_b_005",
-      "subset": "B",
-      "lab": "lab_a",
-      "scene": "scene_05",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 4,
-      "x": 7.960223,
-      "y": 18.777746,
-      "novelty": 27.704202,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_005.jpg"
+      "id": "2025-09-20-17-47-54-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 93.833,
+      "visualCluster": 1,
+      "motionCluster": 1,
+      "x": 14.402309,
+      "y": 16.042189,
+      "novelty": 5.072667,
+      "idleFraction": 0.409107,
+      "preview": "/episodes/2025-09-20-17-47-54-000000.jpg"
     },
     {
-      "id": "fold_b_006",
-      "subset": "B",
-      "lab": "lab_b",
-      "scene": "scene_06",
-      "durationSeconds": 3.0,
-      "visualCluster": 4,
-      "motionCluster": 2,
-      "x": 6.875456,
-      "y": 16.302891,
-      "novelty": 13.765471,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_006.jpg"
-    },
-    {
-      "id": "fold_b_007",
-      "subset": "B",
-      "lab": "lab_c",
-      "scene": "scene_07",
-      "durationSeconds": 3.0,
+      "id": "2025-09-20-18-05-52-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 112.767,
       "visualCluster": 2,
-      "motionCluster": 0,
-      "x": 6.016234,
-      "y": 17.867805,
-      "novelty": 14.447249,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_007.jpg"
+      "motionCluster": 1,
+      "x": 13.566772,
+      "y": 14.828602,
+      "novelty": 3.45173,
+      "idleFraction": 0.402324,
+      "preview": "/episodes/2025-09-20-18-05-52-000000.jpg"
     },
     {
-      "id": "fold_b_008",
-      "subset": "B",
-      "lab": "lab_d",
-      "scene": "scene_08",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 4,
-      "x": 7.742496,
-      "y": 17.739807,
-      "novelty": 27.965228,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_008.jpg"
+      "id": "2025-09-20-18-11-35-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 104.533,
+      "visualCluster": 2,
+      "motionCluster": 1,
+      "x": 14.311086,
+      "y": 15.123898,
+      "novelty": 4.011168,
+      "idleFraction": 0.450141,
+      "preview": "/episodes/2025-09-20-18-11-35-000000.jpg"
     },
     {
-      "id": "fold_b_009",
-      "subset": "B",
-      "lab": "lab_a",
-      "scene": "scene_01",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 2,
-      "x": 8.746032,
-      "y": 18.207447,
-      "novelty": 19.245141,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_009.jpg"
+      "id": "2025-09-20-18-39-18-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 123.733,
+      "visualCluster": 2,
+      "motionCluster": 1,
+      "x": 14.460135,
+      "y": 14.294571,
+      "novelty": 4.184276,
+      "idleFraction": 0.485391,
+      "preview": "/episodes/2025-09-20-18-39-18-000000.jpg"
     },
     {
-      "id": "fold_b_010",
-      "subset": "B",
-      "lab": "lab_b",
-      "scene": "scene_02",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 4,
-      "x": 6.95928,
-      "y": 17.016502,
-      "novelty": 26.879436,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_010.jpg"
+      "id": "2025-09-20-18-44-29-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 78.333,
+      "visualCluster": 2,
+      "motionCluster": 1,
+      "x": 13.729624,
+      "y": 15.638103,
+      "novelty": 4.305661,
+      "idleFraction": 0.418716,
+      "preview": "/episodes/2025-09-20-18-44-29-000000.jpg"
     },
     {
-      "id": "fold_b_011",
+      "id": "2025-09-20-18-59-55-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 78.1,
+      "visualCluster": 3,
+      "motionCluster": 1,
+      "x": 12.813004,
+      "y": 15.258412,
+      "novelty": 2.129901,
+      "idleFraction": 0.424343,
+      "preview": "/episodes/2025-09-20-18-59-55-000000.jpg"
+    },
+    {
+      "id": "2025-09-20-19-04-22-000000",
+      "subset": "A",
+      "lab": "aria",
+      "scene": "day_2025-09-20",
+      "durationSeconds": 82.4,
+      "visualCluster": 3,
+      "motionCluster": 1,
+      "x": 13.654534,
+      "y": 13.969566,
+      "novelty": 2.751025,
+      "idleFraction": 0.396759,
+      "preview": "/episodes/2025-09-20-19-04-22-000000.jpg"
+    },
+    {
+      "id": "2025-09-21-21-40-03-000000",
       "subset": "B",
-      "lab": "lab_c",
-      "scene": "scene_03",
-      "durationSeconds": 3.0,
+      "lab": "aria",
+      "scene": "day_2025-09-21",
+      "durationSeconds": 116.933,
+      "visualCluster": 1,
+      "motionCluster": 1,
+      "x": 13.967343,
+      "y": 16.794554,
+      "novelty": 4.785458,
+      "idleFraction": 0.416088,
+      "preview": "/episodes/2025-09-21-21-40-03-000000.jpg"
+    },
+    {
+      "id": "2025-09-22-20-11-49-000000",
+      "subset": "B",
+      "lab": "aria",
+      "scene": "day_2025-09-22",
+      "durationSeconds": 73.1,
       "visualCluster": 3,
       "motionCluster": 0,
-      "x": 4.46919,
-      "y": 17.665012,
-      "novelty": 13.904676,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_011.jpg"
+      "x": 13.089062,
+      "y": 15.917277,
+      "novelty": 3.611371,
+      "idleFraction": 0.482037,
+      "preview": "/episodes/2025-09-22-20-11-49-000000.jpg"
     },
     {
-      "id": "fold_b_012",
+      "id": "2025-09-23-21-34-16-000000",
       "subset": "B",
-      "lab": "lab_d",
-      "scene": "scene_04",
-      "durationSeconds": 3.0,
+      "lab": "aria",
+      "scene": "day_2025-09-23",
+      "durationSeconds": 98.867,
+      "visualCluster": 0,
+      "motionCluster": 2,
+      "x": 12.297602,
+      "y": 16.070005,
+      "novelty": 2.904574,
+      "idleFraction": 0.425475,
+      "preview": "/episodes/2025-09-23-21-34-16-000000.jpg"
+    },
+    {
+      "id": "2025-09-26-19-08-33-000000",
+      "subset": "B",
+      "lab": "aria",
+      "scene": "day_2025-09-26",
+      "durationSeconds": 137.0,
+      "visualCluster": 0,
+      "motionCluster": 3,
+      "x": 12.076039,
+      "y": 15.102345,
+      "novelty": 2.904574,
+      "idleFraction": 0.413075,
+      "preview": "/episodes/2025-09-26-19-08-33-000000.jpg"
+    },
+    {
+      "id": "2025-10-12-16-41-01-000000",
+      "subset": "B",
+      "lab": "aria",
+      "scene": "day_2025-10-12",
+      "durationSeconds": 69.833,
+      "visualCluster": 1,
+      "motionCluster": 1,
+      "x": 15.310266,
+      "y": 14.827346,
+      "novelty": 4.714586,
+      "idleFraction": 0.428537,
+      "preview": "/episodes/2025-10-12-16-41-01-000000.jpg"
+    },
+    {
+      "id": "2025-10-13-15-48-09-742000",
+      "subset": "B",
+      "lab": "aria",
+      "scene": "day_2025-10-13",
+      "durationSeconds": 93.067,
       "visualCluster": 1,
       "motionCluster": 2,
-      "x": 8.238619,
-      "y": 16.778883,
-      "novelty": 14.072624,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_012.jpg"
+      "x": 13.182488,
+      "y": 16.722767,
+      "novelty": 8.246623,
+      "idleFraction": 0.402108,
+      "preview": "/episodes/2025-10-13-15-48-09-742000.jpg"
     },
     {
-      "id": "fold_b_013",
+      "id": "2025-10-29-22-05-17-820000",
       "subset": "B",
-      "lab": "lab_a",
-      "scene": "scene_05",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 4,
-      "x": 7.061987,
-      "y": 19.421179,
-      "novelty": 26.698067,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_013.jpg"
+      "lab": "aria",
+      "scene": "day_2025-10-29",
+      "durationSeconds": 122.933,
+      "visualCluster": 3,
+      "motionCluster": 1,
+      "x": 12.696589,
+      "y": 14.311867,
+      "novelty": 5.024805,
+      "idleFraction": 0.41322,
+      "preview": "/episodes/2025-10-29-22-05-17-820000.jpg"
     },
     {
-      "id": "fold_b_014",
+      "id": "2025-11-11-21-46-45-854000",
       "subset": "B",
-      "lab": "lab_b",
-      "scene": "scene_06",
-      "durationSeconds": 3.0,
-      "visualCluster": 4,
-      "motionCluster": 4,
-      "x": 6.175644,
-      "y": 18.982267,
-      "novelty": 13.765471,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_014.jpg"
-    },
-    {
-      "id": "fold_b_015",
-      "subset": "B",
-      "lab": "lab_c",
-      "scene": "scene_07",
-      "durationSeconds": 3.0,
-      "visualCluster": 2,
+      "lab": "aria",
+      "scene": "day_2025-11-11",
+      "durationSeconds": 82.233,
+      "visualCluster": 1,
       "motionCluster": 2,
-      "x": 6.880445,
-      "y": 17.935806,
-      "novelty": 14.447249,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_015.jpg"
-    },
-    {
-      "id": "fold_b_016",
-      "subset": "B",
-      "lab": "lab_d",
-      "scene": "scene_08",
-      "durationSeconds": 3.0,
-      "visualCluster": 0,
-      "motionCluster": 0,
-      "x": 5.547296,
-      "y": 17.427237,
-      "novelty": 26.637355,
-      "idleFraction": 0.0,
-      "preview": "/episodes/fold_b_016.jpg"
+      "x": 15.013467,
+      "y": 16.488569,
+      "novelty": 5.050549,
+      "idleFraction": 0.392757,
+      "preview": "/episodes/2025-11-11-21-46-45-854000.jpg"
     }
   ],
   "method": {

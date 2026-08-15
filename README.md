@@ -12,13 +12,12 @@ other branches and pull requests receive preview deployments.
 
 **Demo statement:** For the same task and similar dataset size, this tool shows that subset B covers more distinct visual contexts and manipulation patterns than subset A.
 
-**Data status:** The initial web cockpit contains **12,000 deterministic
-synthetic episode summaries**—6,000 per subset—so the product, charts, search,
-pagination, upload path, and selection behavior are exercised at realistic UI
-scale. Those summaries are generated from 32 schema-faithful raw Zarr
-prototypes. This is valid demo and scale-test data, not 12,000 collected
-EgoVerse recordings and not a scientific claim. Use an approved real slice
-before making that claim.
+**Data status:** The initial web cockpit contains **12,000 deterministic episode
+summary rows**—6,000 per subset—so charts, search, pagination, upload, and
+selection are exercised at realistic UI scale. They reference **16 extracted
+fold-clothes source episodes** with clear 640×480 frames. The repeated summary
+rows are not 12,000 additional recordings, and the confidence intervals remain
+tied to the 16 scored source episodes.
 
 ![Hallmark Cobalt EgoPrism dashboard showing subset B winning on visual and motion coverage](assets/dashboard-web.png)
 
@@ -30,9 +29,9 @@ The production UI is a Next.js 16 App Router app in `web/`. It uses Hallmark's
 modern-minimal Workbench structure and Cobalt theme as a fixed viewport cockpit:
 the decision and four evidence panels stay on one screen with no page-level
 vertical scrolling. It fetches the read-only Modal summary endpoint and expands
-the recognized 32-record demo response into the same deterministic 12,000-row
-summary corpus. A bundled seed payload provides the same result if Modal is
-temporarily unavailable.
+the recognized 16-episode comparison into a deterministic 12,000-row interface
+index. A bundled payload and the same extracted episode frames provide the same
+result if Modal is temporarily unavailable.
 
 ```bash
 cd web
@@ -59,8 +58,9 @@ From `EgoPrism/` with the project venv (`source ../.venv/bin/activate` if you ar
 
 ```bash
 pip install -r requirements.txt
-python scripts/make_fixtures.py
+export EGOPRISM_DATA_ROOT=/path/to/the/fold-clothes-cache
 python scripts/extract.py
+python scripts/export_web_data.py
 streamlit run app.py
 ```
 
@@ -97,24 +97,24 @@ Deploy the read-only web payload endpoint:
 modal deploy modal_api.py
 ```
 
-The bundled demo data is versioned, so a stale demo fixture on the persistent
-volume is refreshed automatically. Unknown volume data is treated as real and
-is never overwritten.
+The persistent Modal volume holds the scored feature parquet used by the public
+summary endpoint. The bundled comparison is a deterministic fallback for that
+same payload.
 
 GPU is not on the default path. `gpu_ready` exists as an optional probe if you later need to generate embeddings that are missing from the zarr.
 
 ## What is being compared
 
-The raw fixture layer contains two **fold-clothes** subsets with 16 prototype
-episodes each, ~3s clips, 30 FPS, `human_bimanual` with camera intrinsics. The
-web scale-demo layer deterministically expands each side to 6,000 unique episode
-summary records while retaining the same task-matched cluster distribution.
+The current source comparison contains two **fold-clothes** subsets with eight
+extracted episodes each. The web layer deterministically expands each side to
+6,000 interface summary rows while retaining the source cluster distribution
+and preview-frame mapping.
 
 | | Subset A | Subset B |
 |---|---|---|
-| Scenes | 1 kitchen | 8 kitchens |
-| Labs | 1 | 4 |
-| Motion | short, high-idle | longer, varied, mixed coordination |
+| Scenes | 1 recorded day | 8 recorded days |
+| Source episodes | 8 | 8 |
+| Motion clusters | 1 of 4 | 4 of 4 |
 
 Swap the CSV manifests and `.zarr` stores to point at a real EgoVerse slice. The reader already expects `images.front_1`, optional `dino.front_img_1`, and whichever of `left/right.obs_ee_pose` plus `obs_head_pose` exists.
 
@@ -141,7 +141,8 @@ Lab, scene, and other metadata are filters and labels. They are not score inputs
   cluster. To keep the fixed cockpit responsive, this panel uses a deterministic
   subset- and cluster-stratified sample of at most 320 points and states the
   sample size in its header. The coverage counts, entropy scores, confidence
-  intervals, and dataset index use all 12,000 records. Nearby marks have more
+  occupancy counts and dataset index use all 12,000 summary rows. Confidence
+  intervals remain the source-episode intervals. Nearby marks have more
   similar image embeddings. PCA followed by UMAP produces this 2D inspection
   map when UMAP is available.
 - Projection axes have no standalone semantic meaning, and screen distance is
@@ -149,7 +150,8 @@ Lab, scene, and other metadata are filters and labels. They are not score inputs
   cluster-occupancy entropy produces the score.
 - The coverage panel shows both visual and motion occupancy. In each row, the
   upper bar is A, the lower bar is B, and the count at right is `A / B`. The
-  fixture has A in 1/5 visual clusters and B in 5/5.
+  current comparison has both A and B in 3/4 visual clusters; the larger
+  separation comes from motion, where A uses 1/4 and B uses 4/4.
 - The score panel combines the component bars with a 0–100 confidence-interval
   chart. The episode inspector connects a selected point to its frame, scene,
   lab, cluster, novelty, and idle metrics.
@@ -159,8 +161,8 @@ Lab, scene, and other metadata are filters and labels. They are not score inputs
 Click **Dataset** in the top-right corner. The side drawer exposes the complete
 episode index with search and 100-row pagination, and accepts an EgoPrism
 comparison JSON up to 25 MB. A valid file immediately replaces the bundled
-fixture in all four panels for the current browser tab; **Restore bundled demo**
-switches back to the 12,000-record corpus.
+comparison in all four panels for the current browser tab; **Restore initial
+dataset** switches back to the 12,000-row index.
 
 This upload is intentionally the scored comparison payload, not raw Zarr. Raw
 EgoVerse data still needs the Python extraction and clustering pipeline first.
@@ -192,10 +194,10 @@ EgoPrism/
 
 ## Limitations
 
-- Thirty-two synthetic schema-faithful raw prototypes ship so the pipeline runs
-  without EgoDB; the web layer expands their summaries to 12,000 records for UI
-  scale testing. Do not describe those summaries as 12,000 raw captures. Drop
-  in approved real Zarr and do not keep fixture centroids for a production slice.
+- Sixteen extracted source episodes support the current A/B comparison. The web
+  layer expands their summaries to 12,000 rows for interface-scale testing. Do
+  not describe those rows as 12,000 independent captures or use the small source
+  sample as a broad population claim.
 - A higher score is cluster coverage, not guaranteed robot success.
 - Missing motion is labeled, not invented.
 - ElevenLabs is optional demo audio. It does not score subsets.

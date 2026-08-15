@@ -2,9 +2,8 @@ import type { ComparisonData, Episode, Occupancy, SubsetSummary } from "./types"
 
 export const DEMO_EPISODES_PER_SUBSET = 6_000;
 export const DEMO_TOTAL_EPISODES = DEMO_EPISODES_PER_SUBSET * 2;
-export const SCALED_DEMO_SOURCE = "scaled-synthetic-summary";
+export const SCALED_INITIAL_SOURCE = "scaled-episode-summary";
 
-const RAW_PROTOTYPE_ID_RE = /^fold_[ab]_\d{3}$/;
 const ROUNDING_FACTOR = 1_000_000;
 
 function round(value: number) {
@@ -22,24 +21,18 @@ function deterministicNoise(index: number, salt: number) {
   return (value >>> 0) / 4_294_967_296;
 }
 
-function seededRandom(seed: number) {
-  let state = seed >>> 0;
-  return () => {
-    state += 0x6d2b79f5;
-    let value = state;
-    value = Math.imul(value ^ (value >>> 15), value | 1);
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-  };
-}
-
-function isRawPrototypeComparison(data: ComparisonData) {
+function isScalableInitialComparison(data: ComparisonData) {
+  const subsetACount = data.episodes.filter((episode) => episode.subset === "A").length;
+  const subsetBCount = data.episodes.length - subsetACount;
   return (
-    data.task === "fold-clothes" &&
-    data.episodes.length === 32 &&
-    data.subsetA.episodes === 16 &&
-    data.subsetB.episodes === 16 &&
-    data.episodes.every((episode) => RAW_PROTOTYPE_ID_RE.test(episode.id))
+    data.source !== SCALED_INITIAL_SOURCE &&
+    data.task.replaceAll("_", "-") === "fold-clothes" &&
+    data.episodes.length > 1 &&
+    data.episodes.length < DEMO_TOTAL_EPISODES &&
+    subsetACount > 0 &&
+    subsetACount === subsetBCount &&
+    data.subsetA.episodes === subsetACount &&
+    data.subsetB.episodes === subsetBCount
   );
 }
 
@@ -95,16 +88,6 @@ function median(values: number[]) {
     : ordered[middle]!;
 }
 
-function quantile(values: number[], probability: number) {
-  const ordered = values.toSorted((a, b) => a - b);
-  const position = (ordered.length - 1) * probability;
-  const lowerIndex = Math.floor(position);
-  const upperIndex = Math.ceil(position);
-  const lower = ordered[lowerIndex]!;
-  const upper = ordered[upperIndex]!;
-  return lower + (upper - lower) * (position - lowerIndex);
-}
-
 function scoreFromOccupancy(
   visual: Occupancy[],
   motion: Occupancy[],
@@ -116,38 +99,11 @@ function scoreFromOccupancy(
   );
 }
 
-function bootstrapConfidenceInterval(
-  episodes: Episode[],
-  clusterCount: number,
-  method: ComparisonData["method"],
-  seed: number,
-): [number, number] {
-  const random = seededRandom(seed);
-  const scores: number[] = [];
-  for (let sampleIndex = 0; sampleIndex < method.bootstrapSamples; sampleIndex += 1) {
-    const visualCounts = Array.from({ length: clusterCount }, () => 0);
-    const motionCounts = Array.from({ length: clusterCount }, () => 0);
-    for (let episodeIndex = 0; episodeIndex < episodes.length; episodeIndex += 1) {
-      const episode = episodes[Math.floor(random() * episodes.length)]!;
-      visualCounts[episode.visualCluster] += 1;
-      if (episode.motionCluster >= 0) motionCounts[episode.motionCluster] += 1;
-    }
-    scores.push(scoreFromOccupancy(
-      visualCounts.map((count, cluster) => ({ cluster, count })),
-      motionCounts.map((count, cluster) => ({ cluster, count })),
-      method,
-    ));
-  }
-  const tail = (1 - method.confidenceLevel) / 2;
-  return [round(quantile(scores, tail)), round(quantile(scores, 1 - tail))];
-}
-
 function summarizeSubset(
   original: SubsetSummary,
   episodes: Episode[],
   clusterCount: number,
   method: ComparisonData["method"],
-  seed: number,
 ): SubsetSummary {
   const visualOccupancy = occupancy(episodes, clusterCount, "visualCluster");
   const motionOccupancy = occupancy(episodes, clusterCount, "motionCluster");
@@ -161,7 +117,8 @@ function summarizeSubset(
   return {
     ...original,
     score: round(score),
-    ci: bootstrapConfidenceInterval(episodes, clusterCount, method, seed),
+    // UI-scale duplication must not pretend to add statistical evidence.
+    ci: original.ci,
     episodes: episodes.length,
     scenes: new Set(episodes.map((episode) => episode.scene)).size,
     labs: new Set(episodes.map((episode) => episode.lab)).size,
@@ -177,12 +134,12 @@ function summarizeSubset(
 }
 
 export function scaleDemoComparison(data: ComparisonData): ComparisonData {
-  if (data.source === SCALED_DEMO_SOURCE || !isRawPrototypeComparison(data)) return data;
+  if (!isScalableInitialComparison(data)) return data;
 
   const subsetA = expandSubset(data.episodes.filter((episode) => episode.subset === "A"), "A");
   const subsetB = expandSubset(data.episodes.filter((episode) => episode.subset === "B"), "B");
-  const summaryA = summarizeSubset(data.subsetA, subsetA, data.clusterCount, data.method, 4_101);
-  const summaryB = summarizeSubset(data.subsetB, subsetB, data.clusterCount, data.method, 8_203);
+  const summaryA = summarizeSubset(data.subsetA, subsetA, data.clusterCount, data.method);
+  const summaryB = summarizeSubset(data.subsetB, subsetB, data.clusterCount, data.method);
   const intervalsOverlap = summaryA.ci[1] >= summaryB.ci[0] && summaryB.ci[1] >= summaryA.ci[0];
   const gap = Math.abs(summaryB.score - summaryA.score);
   const winner = intervalsOverlap || gap < data.method.minimumWinnerGap
@@ -191,15 +148,15 @@ export function scaleDemoComparison(data: ComparisonData): ComparisonData {
 
   return {
     ...data,
-    source: SCALED_DEMO_SOURCE,
+    source: SCALED_INITIAL_SOURCE,
     winner,
     statement: winner === "tie"
       ? "No clear difference — confidence intervals overlap or the gap is small."
       : `Subset ${winner} covers more distinct visual contexts and manipulation patterns than subset ${winner === "A" ? "B" : "A"}.`,
     notes: [
       ...data.notes,
-      `${DEMO_TOTAL_EPISODES.toLocaleString("en-US")} deterministic summary records are expanded from 32 schema-faithful raw prototypes for scale testing.`,
-      "The scaled synthetic corpus and its bootstrap intervals are demo evidence, not a scientific EgoVerse result.",
+      `${DEMO_TOTAL_EPISODES.toLocaleString("en-US")} deterministic summary records are expanded from ${data.episodes.length} scored source episodes for interface-scale testing.`,
+      `Confidence intervals remain those of the ${data.episodes.length} source episodes; repeated summaries do not add statistical evidence.`,
     ],
     subsetA: summaryA,
     subsetB: summaryB,

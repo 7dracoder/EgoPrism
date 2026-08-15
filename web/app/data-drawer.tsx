@@ -29,7 +29,7 @@ export default function DataDrawer({
   open,
   data,
   datasetName,
-  isDemoFixture,
+  isExpandedInitial,
   uploadStatus,
   onUpload,
   onReset,
@@ -38,7 +38,7 @@ export default function DataDrawer({
   open: boolean;
   data: ComparisonData;
   datasetName: string;
-  isDemoFixture: boolean;
+  isExpandedInitial: boolean;
   uploadStatus: UploadStatus;
   onUpload: (file: File) => void;
   onReset: () => void;
@@ -92,14 +92,14 @@ export default function DataDrawer({
         </header>
 
         <div className="side-drawer__body">
-          <section className="dataset-current" data-fixture={isDemoFixture}>
+          <section className="dataset-current" data-fixture={isExpandedInitial}>
             <div className="dataset-current__head">
               <span><Database aria-hidden="true" size={17} /> Active dataset</span>
-              <small>{isDemoFixture ? "Synthetic demo" : "Uploaded JSON"}</small>
+              <small>{isExpandedInitial ? "Extracted source + scale index" : "Uploaded JSON"}</small>
             </div>
             <strong>{datasetName}</strong>
             <p>{data.task} · {data.episodes.length.toLocaleString()} episodes · {data.quality}</p>
-            {isDemoFixture ? <p className="dataset-current__provenance">12,000 unique summary records derived from 32 raw Zarr prototypes for scale testing.</p> : null}
+            {isExpandedInitial ? <p className="dataset-current__provenance">12,000 deterministic summary rows reference 16 extracted 640×480 episode frames. Confidence intervals remain tied to the 16 scored source episodes.</p> : null}
             <div>
               <span>A: {data.subsetA.episodes.toLocaleString()} episodes</span>
               <span>B: {data.subsetB.episodes.toLocaleString()} episodes</span>
@@ -112,7 +112,7 @@ export default function DataDrawer({
             <div className="drawer-section-title">
               <span>Input data</span>
               <h3 id="upload-title">Upload an EgoPrism comparison JSON</h3>
-              <p>The uploaded file is validated and stays in this browser tab. It immediately replaces the demo across all four visualizations.</p>
+              <p>The uploaded file is validated and stays in this browser tab. It immediately replaces the initial comparison across all four visualizations.</p>
             </div>
             <div
               className="upload-dropzone"
@@ -151,9 +151,9 @@ export default function DataDrawer({
               {uploadStatus.state === "error" ? <AlertTriangle aria-hidden="true" size={15} /> : null}
               {uploadStatus.message}
             </p>
-            {!isDemoFixture ? (
+            {!isExpandedInitial ? (
               <button type="button" className="cockpit-button cockpit-button--quiet" onClick={onReset}>
-                <RotateCcw aria-hidden="true" size={16} /> Restore bundled demo
+                <RotateCcw aria-hidden="true" size={16} /> Restore initial dataset
               </button>
             ) : null}
           </section>

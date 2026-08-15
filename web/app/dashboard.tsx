@@ -6,7 +6,7 @@ import { Database, Mic } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import DataDrawer, { type UploadStatus } from "./data-drawer";
-import { scaleDemoComparison, SCALED_DEMO_SOURCE } from "./data/scale-demo";
+import { scaleDemoComparison, SCALED_INITIAL_SOURCE } from "./data/scale-demo";
 import type { ComparisonData, Episode } from "./data/types";
 import { isComparisonData } from "./data/validate";
 import {
@@ -22,7 +22,6 @@ type DashboardProps = { data: ComparisonData };
 type DrawerKind = "data" | "voice" | null;
 type DataOrigin = "initial" | "uploaded";
 
-const FIXTURE_ID_RE = /^fold_[ab]_\d{3,5}$/;
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 const VoiceAgent = dynamic(() => import("./voice-agent"), {
@@ -35,8 +34,8 @@ const VoiceAgent = dynamic(() => import("./voice-agent"), {
   ),
 });
 
-function isFixtureData(data: ComparisonData) {
-  return data.episodes.length > 0 && data.episodes.every((episode) => FIXTURE_ID_RE.test(episode.id));
+function isExpandedInitialData(data: ComparisonData) {
+  return data.source === SCALED_INITIAL_SOURCE;
 }
 
 function firstEpisode(data: ComparisonData) {
@@ -67,11 +66,11 @@ function CompactScore({
 
 export default function Dashboard({ data }: DashboardProps) {
   const initialData = useMemo(() => scaleDemoComparison(data), [data]);
-  const initialFixture = useMemo(() => isFixtureData(initialData), [initialData]);
+  const initialExpanded = useMemo(() => isExpandedInitialData(initialData), [initialData]);
   const [activeData, setActiveData] = useState(initialData);
   const [dataOrigin, setDataOrigin] = useState<DataOrigin>("initial");
   const [datasetName, setDatasetName] = useState(
-    initialFixture ? "12K synthetic fold-clothes corpus" : "Modal comparison",
+    initialExpanded ? "12K fold-clothes summary corpus" : "Modal comparison",
   );
   const [selectedEpisodeId, setSelectedEpisodeId] = useState(firstEpisode(initialData).id);
   const [drawer, setDrawer] = useState<DrawerKind>(null);
@@ -86,10 +85,10 @@ export default function Dashboard({ data }: DashboardProps) {
     [activeData.episodes],
   );
   const selectedEpisode = episodeById.get(selectedEpisodeId) ?? firstEpisode(activeData);
-  const isDemoFixture = dataOrigin === "initial" && initialFixture;
+  const isExpandedInitial = dataOrigin === "initial" && initialExpanded;
   const sourceLabel = dataOrigin === "uploaded"
     ? "Uploaded JSON"
-    : activeData.source === SCALED_DEMO_SOURCE
+    : activeData.source === SCALED_INITIAL_SOURCE
       ? "12K active dataset"
       : activeData.source === "modal"
         ? "Modal live"
@@ -144,7 +143,7 @@ export default function Dashboard({ data }: DashboardProps) {
   const resetDemo = () => {
     setActiveData(initialData);
     setDataOrigin("initial");
-    setDatasetName(initialFixture ? "12K synthetic fold-clothes corpus" : "Modal comparison");
+    setDatasetName(initialExpanded ? "12K fold-clothes summary corpus" : "Modal comparison");
     setSelectedEpisodeId(firstEpisode(initialData).id);
     setMobilePanel("projection");
     setUploadStatus({ state: "idle", message: "Bundled comparison restored." });
@@ -237,7 +236,7 @@ export default function Dashboard({ data }: DashboardProps) {
         open={drawer === "data"}
         data={activeData}
         datasetName={datasetName}
-        isDemoFixture={isDemoFixture}
+        isExpandedInitial={isExpandedInitial}
         uploadStatus={uploadStatus}
         onUpload={(file) => void handleUpload(file)}
         onReset={resetDemo}
