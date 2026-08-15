@@ -27,6 +27,10 @@ export const metadata: Metadata = {
   title: "EgoPrism — Quantitative diversity for EgoVerse",
   description:
     "Compare matched EgoVerse subsets using deterministic visual and motion coverage—not captions or an LLM.",
+  icons: {
+    icon: "/egoprism-mark.png",
+    apple: "/egoprism-mark.png",
+  },
   metadataBase: new URL(process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000"),

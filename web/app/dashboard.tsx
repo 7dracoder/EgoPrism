@@ -83,9 +83,13 @@ function ScatterPlot({
   }, [episodes]);
 
   return (
-    <div className="scatter" role="group" aria-label="Visual embedding projection">
-      <div className="scatter__axis scatter__axis--x">visual dimension 1</div>
-      <div className="scatter__axis scatter__axis--y">visual dimension 2</div>
+    <div
+      className="scatter"
+      role="group"
+      aria-label="Two-dimensional visual embedding projection. Nearby points are more visually similar; position is not the diversity score."
+    >
+      <div className="scatter__axis scatter__axis--x">projection axis 1</div>
+      <div className="scatter__axis scatter__axis--y">projection axis 2</div>
       {positioned.map(({ episode, left, top }) => (
         <button
           type="button"
@@ -228,6 +232,9 @@ export default function Dashboard({ data }: DashboardProps) {
     1,
   );
   const sourceLabel = data.source === "modal" ? "Modal live" : "Bundled cache";
+  const isDemoFixture =
+    data.episodes.length > 0 &&
+    data.episodes.every((episode) => /^fold_[ab]_\d{3}$/.test(episode.id));
   const voiceLabel =
     voiceState === "loading"
       ? "Generating…"
@@ -241,7 +248,16 @@ export default function Dashboard({ data }: DashboardProps) {
     <>
       <header className="topbar">
         <a className="wordmark" href="#decision" aria-label="EgoPrism home">
-          <span className="wordmark__mark">E</span>
+          <span className="wordmark__mark" aria-hidden="true">
+            <Image
+              src="/egoprism-mark.png"
+              alt=""
+              width={64}
+              height={64}
+              sizes="2.5rem"
+              loading="eager"
+            />
+          </span>
           <span>EgoPrism</span>
         </a>
         <button type="button" className="search-pill" onClick={openCommand} aria-label="Open command palette">
@@ -265,6 +281,9 @@ export default function Dashboard({ data }: DashboardProps) {
           <span>{data.task}</span>
           <span>{data.episodes.length} episodes</span>
           <span>{data.quality}</span>
+          <span className="run-strip__scope" data-fixture={isDemoFixture}>
+            {isDemoFixture ? "Synthetic demo" : "External slice"}
+          </span>
         </div>
 
         <section className="hero reveal">
@@ -347,24 +366,50 @@ export default function Dashboard({ data }: DashboardProps) {
           Higher means broader cluster coverage. It does not guarantee better downstream policy performance.
         </p>
 
+        <aside className="data-provenance" data-fixture={isDemoFixture} aria-label="Dataset validity">
+          <div className="data-provenance__label">Dataset validity</div>
+          <div>
+            <strong>
+              {isDemoFixture
+                ? "Valid for an end-to-end product demo—not for a real EgoVerse research claim."
+                : "External data slice detected. Verify its license, provenance, and manifest before claiming a result."}
+            </strong>
+            <p>
+              {isDemoFixture
+                ? "These 32 episodes are deterministic, schema-faithful synthetic fixtures. They exercise validation, features, scoring, uncertainty, plots, and voice; an approved real slice must replace them for scientific evidence."
+                : "EgoPrism validates schema and comparison rules, but data approval remains the dataset owner’s responsibility."}
+            </p>
+          </div>
+          <a href="#method">Read the method</a>
+        </aside>
+
         <section className="evidence-band" id="evidence">
           <div className="evidence-band__head">
             <div>
               <h2>See where the coverage comes from.</h2>
-              <p>Every mark is one episode. Shape identifies subset; the numeral identifies visual cluster.</p>
+              <p>Read the visual map and occupancy bars together—the map explains similarity; the bars explain coverage.</p>
             </div>
             <div className="legend" aria-label="Plot legend">
-              <span><i data-subset="A" /> Subset A</span>
-              <span><i data-subset="B" /> Subset B</span>
+              <span><i data-subset="A" /> A · square</span>
+              <span><i data-subset="B" /> B · circle</span>
             </div>
           </div>
+
+          <ol className="reading-sequence" aria-label="How to read the evidence">
+            <li><span>01</span><div><strong>One mark = one episode</strong><small>Shape shows subset; the numeral is its visual cluster.</small></div></li>
+            <li><span>02</span><div><strong>Near means visually similar</strong><small>The 2D projection is a map for inspection, not the score itself.</small></div></li>
+            <li><span>03</span><div><strong>Spread across bars means coverage</strong><small>More even occupancy across clusters produces higher visual entropy.</small></div></li>
+          </ol>
 
           <div className="evidence-grid">
             <article className="plot-panel">
               <div className="plot-panel__title">
                 <span>Visual projection</span>
-                <small>Pooled PCA · click a point</small>
+                <small>PCA → UMAP · click a point</small>
               </div>
+              <p className="plot-panel__guide">
+                Episodes close together have similar image fingerprints. Axis values have no standalone meaning, and screen distance does not enter the score.
+              </p>
               <ScatterPlot
                 episodes={data.episodes}
                 selected={selectedEpisode?.id ?? ""}
@@ -374,8 +419,10 @@ export default function Dashboard({ data }: DashboardProps) {
                 <div className="selected-readout" aria-live="polite">
                   <span>Selected</span>
                   <strong>{selectedEpisode.id}</strong>
+                  <span>subset {selectedEpisode.subset}</span>
                   <span>cluster {selectedEpisode.visualCluster + 1}</span>
                   <span>{selectedEpisode.scene.replace("_", " ")}</span>
+                  <span>novelty {selectedEpisode.novelty.toFixed(2)}</span>
                 </div>
               )}
             </article>
@@ -383,14 +430,22 @@ export default function Dashboard({ data }: DashboardProps) {
             <article className="occupancy-panel">
               <div className="plot-panel__title">
                 <span>Visual cluster occupancy</span>
-                <small>episodes per cluster</small>
+                <small>paired bars A / B · count at right</small>
               </div>
+              <p className="plot-panel__guide">
+                Each row is one cluster. The upper muted bar is A; the lower teal bar is B. Longer means more episodes in that cluster.
+              </p>
               <div className="occupancy-list">
                 {Array.from({ length: data.clusterCount }, (_, clusterIndex) => {
                   const countA = occupancyCount(data.subsetA.visualOccupancy, clusterIndex);
                   const countB = occupancyCount(data.subsetB.visualOccupancy, clusterIndex);
                   return (
-                    <div className="occupancy-row" key={clusterIndex}>
+                    <div
+                      className="occupancy-row"
+                      key={clusterIndex}
+                      role="img"
+                      aria-label={`Cluster ${clusterIndex + 1}: ${countA} Subset A episodes and ${countB} Subset B episodes`}
+                    >
                       <span className="occupancy-row__label">C{clusterIndex + 1}</span>
                       <div className="occupancy-row__tracks">
                         <div className="track" data-subset="A"><span style={{ "--bar-width": `${(countA / maxOccupancy) * 100}%` } as CSSProperties} /></div>
@@ -406,6 +461,13 @@ export default function Dashboard({ data }: DashboardProps) {
                 <div><span>B clusters</span><strong>{data.subsetB.visualClustersUsed}/{data.clusterCount}</strong></div>
                 <div><span>Median idle A</span><strong>{percent(data.subsetA.medianIdleFraction)}</strong></div>
                 <div><span>Median idle B</span><strong>{percent(data.subsetB.medianIdleFraction)}</strong></div>
+              </div>
+              <div className="coverage-conclusion">
+                <span>Readout</span>
+                <p>
+                  <strong>B reaches {data.subsetB.visualClustersUsed}/{data.clusterCount} visual clusters.</strong>{" "}
+                  A reaches {data.subsetA.visualClustersUsed}/{data.clusterCount}; that concentration is why its visual coverage is lower.
+                </p>
               </div>
             </article>
           </div>

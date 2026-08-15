@@ -12,6 +12,11 @@ other branches and pull requests receive preview deployments.
 
 **Demo statement:** For the same task and similar dataset size, this tool shows that subset B covers more distinct visual contexts and manipulation patterns than subset A.
 
+**Data status:** The included 32 episodes are deterministic, schema-faithful
+synthetic fixtures. They are valid for exercising the complete product and
+scoring method, but the fixture result is not a scientific claim about real
+EgoVerse data. Use an approved real slice before making that claim.
+
 ![Hallmark Cobalt EgoPrism dashboard showing subset B winning on visual and motion coverage](assets/dashboard-web.png)
 
 This is Track 2 (Quantitative Diversity Measurement). It is a data-selection signal, not a claim that a higher score trains a better robot.
@@ -115,6 +120,26 @@ Swap the CSV manifests and `.zarr` stores to point at a real EgoVerse slice. The
 Idle speed threshold: **0.02 m/s**. Eight evenly spaced front frames per episode. DINO vectors are L2-normalized, then mean-pooled. Poses are rewritten into the current head frame when head pose exists.
 
 Lab, scene, and other metadata are filters and labels. They are not score inputs.
+
+## How to read the evidence
+
+- The score rows show the 0–100 diversity score, its visual and motion
+  components, and a 95% episode-bootstrap interval.
+- In the dark visual projection, each mark is an episode: outlined squares are
+  A, teal circles are B, and the numeral is its visual cluster. Nearby marks
+  have more similar image embeddings. PCA followed by UMAP produces this 2D
+  inspection map when UMAP is available.
+- Projection axes have no standalone semantic meaning, and screen distance is
+  not the score. Clusters are fit in the standardized feature space; normalized
+  cluster-occupancy entropy produces the score.
+- In each occupancy row, the upper bar is A, the lower bar is B, and the count
+  at right is `A / B`. The fixture has A in 1/5 visual clusters and B in 5/5.
+- Clicking a point reveals its episode metadata. Episode filters change only
+  what is shown; they never recompute the score.
+
+The full plain-language walkthrough, including the exact fixture occupancy and
+what not to infer from UMAP, is in `../EGOPRISM_COMPLETE_PROJECT_GUIDE.md` in
+the parent workspace.
 
 ## Layout
 

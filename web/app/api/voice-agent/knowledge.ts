@@ -8,7 +8,7 @@ export const voiceAnswers = {
   confidence:
     "EgoPrism resamples whole episodes 200 times to form 95 percent bootstrap confidence intervals. It declares a winner only when the intervals do not overlap and the score gap is at least two points. Otherwise it reports no clear difference.",
   evidence:
-    "The evidence section shows the visual projection, cluster occupancy for both subsets, motion and visual score components, and episode-level examples. Projection points are clickable, while the episode grid can be filtered by subset, visual cluster, and lab. Those views trace the final score back to observable examples.",
+    "Read the evidence in two parts. In the visual projection, each mark is an episode: outlined squares are Subset A, teal circles are Subset B, and the numeral is its visual cluster. Nearby marks have more similar image fingerprints, but the two axes have no standalone meaning and screen distance is not the score. In each occupancy row the upper bar is A, the lower bar is B, and the count is A slash B. The current fixture puts all 16 A episodes in cluster one, while B reaches all five visual clusters. Click a point for its episode readout, then inspect the episode cards. Filters change only what is visible; they never recompute the score.",
   visual:
     "The visual signal samples eight front-camera frames per episode. It uses stored DINO vectors when available, L2-normalizes and mean-pools them, then compares cluster coverage across the pooled subsets. Subset B covers five visual clusters in the current demonstration, while A covers one.",
   motion:
@@ -16,7 +16,7 @@ export const voiceAnswers = {
   limitations:
     "A higher EgoPrism score means broader measured cluster coverage; it does not guarantee better robot policy performance. The included episodes are synthetic schema-faithful fixtures, so they support a reproducible product demonstration rather than a final scientific EgoVerse claim. An approved real data slice is still needed for that claim.",
   fixtures:
-    "The repository ships 32 synthetic schema-faithful episodes so the pipeline and dashboard can run without private EgoDB access. They preserve the expected image, embedding, pose, and metadata structure. Replace the manifests and zarr stores with an approved real slice before presenting the result as research evidence.",
+    "The current dataset is valid for an end-to-end product and method demonstration, but not for a scientific claim about real EgoVerse recordings. The repository ships 32 deterministic, synthetic schema-faithful episodes so the pipeline can run without private EgoDB access. They preserve the expected image, embedding, pose, and metadata structure. Replace the manifests and zarr stores with an approved real slice before presenting the result as research evidence.",
   architecture:
     "The scoring pipeline and fixtures live in Python, while Modal serves a read-only summary API. The Hallmark dashboard is a Next.js application deployed on Vercel from the web directory of the GitHub repository. It uses a deterministic bundled fallback if Modal is temporarily unavailable, and ElevenLabs speech is called only from server routes.",
   track:
@@ -34,10 +34,11 @@ export function classifyVoiceQuestion(question: string): VoiceTopic {
   const normalized = question.toLowerCase();
 
   if (containsAny(normalized, ["limit", "prove", "guarantee", "policy", "better robot", "claim"])) return "limitations";
-  if (containsAny(normalized, ["synthetic", "fixture", "real data", "egodb"])) return "fixtures";
+  if (containsAny(normalized, ["synthetic", "fixture", "real data", "egodb", "dataset valid", "data valid", "valid dataset"])) return "fixtures";
   if (containsAny(normalized, ["why did", "winner", "who won", "subset b win", "which subset"])) return "winner";
   if (containsAny(normalized, ["confidence", "bootstrap", "interval", "uncertainty", "clear difference"])) return "confidence";
   if (containsAny(normalized, ["formula", "calculate", "calculated", "score", "entropy", "weight"])) return "score";
+  if (containsAny(normalized, ["read the chart", "read chart", "read the plot", "read plot", "visualization", "visualisation", "occupancy"])) return "evidence";
   if (containsAny(normalized, ["visual", "dino", "frame", "image", "pixel"])) return "visual";
   if (containsAny(normalized, ["motion", "idle", "hand", "head", "pose", "speed"])) return "motion";
   if (containsAny(normalized, ["evidence", "projection", "cluster", "episode", "occupancy"])) return "evidence";
