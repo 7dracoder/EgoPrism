@@ -75,7 +75,7 @@ contract is a fixed, single-viewport evidence cockpit:
 - [x] Serializable web payload and regression tests.
 - [x] Modal read-only comparison API backed by the `egoverse-data` volume.
 - [x] Hallmark/Cobalt Next.js dashboard wired for real Modal episode frames;
-  public frame serving remains deny-by-default behind an explicit allowlist.
+  production frames are publicly cleared through the explicit Modal allowlist.
 - [x] Fixed single-viewport four-panel visualization cockpit with no page-level
   scrolling at supported desktop and mobile sizes.
 - [x] Browser-local comparison JSON upload, strict runtime validation, initial-data reset,
@@ -110,8 +110,8 @@ contract is a fixed, single-viewport evidence cockpit:
 
 ## Before submission
 
-1. Obtain explicit dataset-owner clearance before enabling public display of
-   production frames; feature extraction and aggregate scoring are already complete.
+1. Production-frame public display is cleared and enabled through the explicit
+   Modal preview allowlist; score and metadata serving remain independent.
 2. Record a 60–90 second demo: decision → evidence → episode trace → ask the
    voice analyst why B won.
 3. Explain the pooled transform, score formula, winner rule, and limitation.
