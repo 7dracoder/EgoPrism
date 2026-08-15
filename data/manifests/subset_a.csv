@@ -1,0 +1,17 @@
+episode_id,zarr_path,task,lab,scene,fps
+fold_a_001,data/episodes/fold_a_001.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_002,data/episodes/fold_a_002.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_003,data/episodes/fold_a_003.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_004,data/episodes/fold_a_004.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_005,data/episodes/fold_a_005.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_006,data/episodes/fold_a_006.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_007,data/episodes/fold_a_007.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_008,data/episodes/fold_a_008.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_009,data/episodes/fold_a_009.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_010,data/episodes/fold_a_010.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_011,data/episodes/fold_a_011.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_012,data/episodes/fold_a_012.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_013,data/episodes/fold_a_013.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_014,data/episodes/fold_a_014.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_015,data/episodes/fold_a_015.zarr,fold-clothes,lab_a,scene_01,30
+fold_a_016,data/episodes/fold_a_016.zarr,fold-clothes,lab_a,scene_01,30

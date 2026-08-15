@@ -1,0 +1,13 @@
+modal>=1.5.0
+numpy==2.2.6
+pandas==2.2.3
+pyarrow==19.0.1
+zarr==3.1.2
+numcodecs==0.16.2
+scikit-learn==1.6.1
+plotly==6.1.1
+streamlit==1.45.1
+pytest==8.3.5
+pillow==11.2.1
+umap-learn==0.5.7
+requests==2.32.3

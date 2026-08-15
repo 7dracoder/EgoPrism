@@ -1,0 +1,20 @@
+{
+  "date": "2026-08-15",
+  "genre": "modern-minimal",
+  "macrostructure": "Workbench",
+  "theme": "Cobalt",
+  "fontStack": "Space Grotesk + IBM Plex Sans + JetBrains Mono",
+  "palette": "Cobalt OKLCH semantic tokens",
+  "motion": "Short, purposeful state transitions with reduced-motion fallbacks",
+  "spacing": "Hallmark four-point named scale",
+  "framework": "Next.js 16.3.1 App Router",
+  "preEmitCritique": "P5 H5 E4 S5 R5 V4",
+  "slopTest": "58/58 pass",
+  "productionUrl": "https://egoprism.vercel.app",
+  "preserved": [
+    "deterministic diversity scoring",
+    "quantitative Track 2 terminology",
+    "real episode imagery",
+    "inspectable evidence and limitations"
+  ]
+}

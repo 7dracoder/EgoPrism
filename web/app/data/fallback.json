@@ -1,0 +1,591 @@
+{
+  "project": "EgoPrism",
+  "source": "bundled-cache",
+  "task": "fold-clothes",
+  "quality": "visual + motion",
+  "winner": "B",
+  "statement": "Subset B covers more distinct visual contexts and manipulation patterns than subset A.",
+  "notes": [],
+  "clusterCount": 5,
+  "visualOnly": false,
+  "subsetA": {
+    "name": "A",
+    "score": 17.4699,
+    "ci": [
+      7.2631,
+      21.2905
+    ],
+    "episodes": 16,
+    "scenes": 1,
+    "labs": 1,
+    "durationSeconds": 48.0,
+    "visualEntropy": 0.0,
+    "motionEntropy": 0.349398,
+    "visualClustersUsed": 1,
+    "motionClustersUsed": 2,
+    "visualOccupancy": [
+      {
+        "cluster": 0,
+        "count": 16
+      },
+      {
+        "cluster": 1,
+        "count": 0
+      },
+      {
+        "cluster": 2,
+        "count": 0
+      },
+      {
+        "cluster": 3,
+        "count": 0
+      },
+      {
+        "cluster": 4,
+        "count": 0
+      }
+    ],
+    "motionOccupancy": [
+      {
+        "cluster": 0,
+        "count": 0
+      },
+      {
+        "cluster": 1,
+        "count": 12
+      },
+      {
+        "cluster": 2,
+        "count": 0
+      },
+      {
+        "cluster": 3,
+        "count": 4
+      },
+      {
+        "cluster": 4,
+        "count": 0
+      }
+    ],
+    "medianIdleFraction": 0.646067
+  },
+  "subsetB": {
+    "name": "B",
+    "score": 77.0789,
+    "ci": [
+      55.2636,
+      80.3741
+    ],
+    "episodes": 16,
+    "scenes": 8,
+    "labs": 4,
+    "durationSeconds": 48.0,
+    "visualEntropy": 0.861353,
+    "motionEntropy": 0.680225,
+    "visualClustersUsed": 5,
+    "motionClustersUsed": 3,
+    "visualOccupancy": [
+      {
+        "cluster": 0,
+        "count": 8
+      },
+      {
+        "cluster": 1,
+        "count": 2
+      },
+      {
+        "cluster": 2,
+        "count": 2
+      },
+      {
+        "cluster": 3,
+        "count": 2
+      },
+      {
+        "cluster": 4,
+        "count": 2
+      }
+    ],
+    "motionOccupancy": [
+      {
+        "cluster": 0,
+        "count": 5
+      },
+      {
+        "cluster": 1,
+        "count": 0
+      },
+      {
+        "cluster": 2,
+        "count": 5
+      },
+      {
+        "cluster": 3,
+        "count": 0
+      },
+      {
+        "cluster": 4,
+        "count": 6
+      }
+    ],
+    "medianIdleFraction": 0.0
+  },
+  "episodes": [
+    {
+      "id": "fold_a_001",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 3,
+      "x": 6.012098,
+      "y": 18.440638,
+      "novelty": 7.369103,
+      "idleFraction": 0.977528,
+      "preview": "/episodes/fold_a_001.jpg"
+    },
+    {
+      "id": "fold_a_002",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 5.652175,
+      "y": 18.13958,
+      "novelty": 7.559042,
+      "idleFraction": 0.651685,
+      "preview": "/episodes/fold_a_002.jpg"
+    },
+    {
+      "id": "fold_a_003",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 7.183094,
+      "y": 17.390295,
+      "novelty": 7.313858,
+      "idleFraction": 0.550562,
+      "preview": "/episodes/fold_a_003.jpg"
+    },
+    {
+      "id": "fold_a_004",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 5.110106,
+      "y": 16.800882,
+      "novelty": 7.66883,
+      "idleFraction": 0.640449,
+      "preview": "/episodes/fold_a_004.jpg"
+    },
+    {
+      "id": "fold_a_005",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 3,
+      "x": 7.509207,
+      "y": 18.260664,
+      "novelty": 7.477757,
+      "idleFraction": 0.988764,
+      "preview": "/episodes/fold_a_005.jpg"
+    },
+    {
+      "id": "fold_a_006",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 6.68188,
+      "y": 18.786602,
+      "novelty": 7.405588,
+      "idleFraction": 0.674157,
+      "preview": "/episodes/fold_a_006.jpg"
+    },
+    {
+      "id": "fold_a_007",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 6.289828,
+      "y": 17.205961,
+      "novelty": 7.433975,
+      "idleFraction": 0.550562,
+      "preview": "/episodes/fold_a_007.jpg"
+    },
+    {
+      "id": "fold_a_008",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 5.429511,
+      "y": 19.07283,
+      "novelty": 7.508031,
+      "idleFraction": 0.640449,
+      "preview": "/episodes/fold_a_008.jpg"
+    },
+    {
+      "id": "fold_a_009",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 3,
+      "x": 8.259156,
+      "y": 17.607758,
+      "novelty": 7.38684,
+      "idleFraction": 0.994382,
+      "preview": "/episodes/fold_a_009.jpg"
+    },
+    {
+      "id": "fold_a_010",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 4.703196,
+      "y": 18.475252,
+      "novelty": 7.490783,
+      "idleFraction": 0.668539,
+      "preview": "/episodes/fold_a_010.jpg"
+    },
+    {
+      "id": "fold_a_011",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 6.467,
+      "y": 18.033886,
+      "novelty": 7.228783,
+      "idleFraction": 0.550562,
+      "preview": "/episodes/fold_a_011.jpg"
+    },
+    {
+      "id": "fold_a_012",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 7.659459,
+      "y": 16.934757,
+      "novelty": 7.662209,
+      "idleFraction": 0.640449,
+      "preview": "/episodes/fold_a_012.jpg"
+    },
+    {
+      "id": "fold_a_013",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 3,
+      "x": 5.746603,
+      "y": 16.775545,
+      "novelty": 7.475882,
+      "idleFraction": 1.0,
+      "preview": "/episodes/fold_a_013.jpg"
+    },
+    {
+      "id": "fold_a_014",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 7.364211,
+      "y": 16.49161,
+      "novelty": 7.359788,
+      "idleFraction": 0.685393,
+      "preview": "/episodes/fold_a_014.jpg"
+    },
+    {
+      "id": "fold_a_015",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 4.992,
+      "y": 17.37833,
+      "novelty": 7.615909,
+      "idleFraction": 0.550562,
+      "preview": "/episodes/fold_a_015.jpg"
+    },
+    {
+      "id": "fold_a_016",
+      "subset": "A",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 1,
+      "x": 7.52332,
+      "y": 19.106096,
+      "novelty": 7.30308,
+      "idleFraction": 0.640449,
+      "preview": "/episodes/fold_a_016.jpg"
+    },
+    {
+      "id": "fold_b_001",
+      "subset": "B",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 0,
+      "x": 6.065156,
+      "y": 19.533907,
+      "novelty": 19.872092,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_001.jpg"
+    },
+    {
+      "id": "fold_b_002",
+      "subset": "B",
+      "lab": "lab_b",
+      "scene": "scene_02",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 0,
+      "x": 6.287932,
+      "y": 16.43112,
+      "novelty": 28.045179,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_002.jpg"
+    },
+    {
+      "id": "fold_b_003",
+      "subset": "B",
+      "lab": "lab_c",
+      "scene": "scene_03",
+      "durationSeconds": 3.0,
+      "visualCluster": 3,
+      "motionCluster": 2,
+      "x": 5.048091,
+      "y": 18.020033,
+      "novelty": 13.904676,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_003.jpg"
+    },
+    {
+      "id": "fold_b_004",
+      "subset": "B",
+      "lab": "lab_d",
+      "scene": "scene_04",
+      "durationSeconds": 3.0,
+      "visualCluster": 1,
+      "motionCluster": 4,
+      "x": 4.988138,
+      "y": 18.860443,
+      "novelty": 14.072624,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_004.jpg"
+    },
+    {
+      "id": "fold_b_005",
+      "subset": "B",
+      "lab": "lab_a",
+      "scene": "scene_05",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 4,
+      "x": 7.960223,
+      "y": 18.777746,
+      "novelty": 27.704202,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_005.jpg"
+    },
+    {
+      "id": "fold_b_006",
+      "subset": "B",
+      "lab": "lab_b",
+      "scene": "scene_06",
+      "durationSeconds": 3.0,
+      "visualCluster": 4,
+      "motionCluster": 2,
+      "x": 6.875456,
+      "y": 16.302891,
+      "novelty": 13.765471,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_006.jpg"
+    },
+    {
+      "id": "fold_b_007",
+      "subset": "B",
+      "lab": "lab_c",
+      "scene": "scene_07",
+      "durationSeconds": 3.0,
+      "visualCluster": 2,
+      "motionCluster": 0,
+      "x": 6.016234,
+      "y": 17.867805,
+      "novelty": 14.447249,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_007.jpg"
+    },
+    {
+      "id": "fold_b_008",
+      "subset": "B",
+      "lab": "lab_d",
+      "scene": "scene_08",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 4,
+      "x": 7.742496,
+      "y": 17.739807,
+      "novelty": 27.965228,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_008.jpg"
+    },
+    {
+      "id": "fold_b_009",
+      "subset": "B",
+      "lab": "lab_a",
+      "scene": "scene_01",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 2,
+      "x": 8.746032,
+      "y": 18.207447,
+      "novelty": 19.245141,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_009.jpg"
+    },
+    {
+      "id": "fold_b_010",
+      "subset": "B",
+      "lab": "lab_b",
+      "scene": "scene_02",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 4,
+      "x": 6.95928,
+      "y": 17.016502,
+      "novelty": 26.879436,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_010.jpg"
+    },
+    {
+      "id": "fold_b_011",
+      "subset": "B",
+      "lab": "lab_c",
+      "scene": "scene_03",
+      "durationSeconds": 3.0,
+      "visualCluster": 3,
+      "motionCluster": 0,
+      "x": 4.46919,
+      "y": 17.665012,
+      "novelty": 13.904676,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_011.jpg"
+    },
+    {
+      "id": "fold_b_012",
+      "subset": "B",
+      "lab": "lab_d",
+      "scene": "scene_04",
+      "durationSeconds": 3.0,
+      "visualCluster": 1,
+      "motionCluster": 2,
+      "x": 8.238619,
+      "y": 16.778883,
+      "novelty": 14.072624,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_012.jpg"
+    },
+    {
+      "id": "fold_b_013",
+      "subset": "B",
+      "lab": "lab_a",
+      "scene": "scene_05",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 4,
+      "x": 7.061987,
+      "y": 19.421179,
+      "novelty": 26.698067,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_013.jpg"
+    },
+    {
+      "id": "fold_b_014",
+      "subset": "B",
+      "lab": "lab_b",
+      "scene": "scene_06",
+      "durationSeconds": 3.0,
+      "visualCluster": 4,
+      "motionCluster": 4,
+      "x": 6.175644,
+      "y": 18.982267,
+      "novelty": 13.765471,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_014.jpg"
+    },
+    {
+      "id": "fold_b_015",
+      "subset": "B",
+      "lab": "lab_c",
+      "scene": "scene_07",
+      "durationSeconds": 3.0,
+      "visualCluster": 2,
+      "motionCluster": 2,
+      "x": 6.880445,
+      "y": 17.935806,
+      "novelty": 14.447249,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_015.jpg"
+    },
+    {
+      "id": "fold_b_016",
+      "subset": "B",
+      "lab": "lab_d",
+      "scene": "scene_08",
+      "durationSeconds": 3.0,
+      "visualCluster": 0,
+      "motionCluster": 0,
+      "x": 5.547296,
+      "y": 17.427237,
+      "novelty": 26.637355,
+      "idleFraction": 0.0,
+      "preview": "/episodes/fold_b_016.jpg"
+    }
+  ],
+  "method": {
+    "visualWeight": 0.5,
+    "motionWeight": 0.5,
+    "bootstrapSamples": 200,
+    "confidenceLevel": 0.95,
+    "minimumWinnerGap": 2.0,
+    "idleSpeedThresholdMps": 0.02
+  }
+}

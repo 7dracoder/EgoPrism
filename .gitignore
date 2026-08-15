@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+.pytest_cache/
+.streamlit/secrets.toml
+logs/
+artifacts/*.parquet
+artifacts/*.json
+artifacts/previews/
+artifacts/audio/
+artifacts/dashboard-*.png
+artifacts/hallmark-*.png
+.env
+data/episodes/
+*.zarr
