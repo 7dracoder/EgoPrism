@@ -4,6 +4,11 @@ A dashboard that compares two frozen, task-matched EgoVerse subsets and reports 
 
 - **Live dashboard:** [egoprism.vercel.app](https://egoprism.vercel.app)
 - **Live Modal data API:** [EgoPrism summary endpoint](https://ts5789--egoprism-api-summary.modal.run)
+- **Source repository:** [github.com/7dracoder/EgoPrism](https://github.com/7dracoder/EgoPrism)
+
+Vercel is connected to this repository with `main` as the production branch and
+`web/` as the project root. Every push to `main` creates a production deployment;
+other branches and pull requests receive preview deployments.
 
 **Demo statement:** For the same task and similar dataset size, this tool shows that subset B covers more distinct visual contexts and manipulation patterns than subset A.
 
