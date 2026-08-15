@@ -150,7 +150,9 @@ EgoPrism has two separate voice experiences:
    `EGOPRISM_ELEVEN_MODEL_ID`.
 2. The **Ask AI** control accepts a microphone or typed question about the page,
    maps it to versioned, verified EgoPrism knowledge, and uses ElevenLabs to
-   speak the answer. `/api/voice-agent/answer` performs the grounded mapping;
+   speak the answer. After each spoken response it automatically opens the
+   microphone again, continuing until the user presses **Stop assistant**.
+   `/api/voice-agent/answer` performs the grounded mapping;
    `/api/voice-agent/speak` performs server-only text-to-speech. Unsupported
    browser voice input falls back to the same typed experience.
 

@@ -56,7 +56,8 @@ The dashboard must remain functional, not decorative:
 - [x] Modal read-only comparison API backed by the `egoverse-data` volume.
 - [x] Hallmark/Cobalt Next.js dashboard with real episode frames.
 - [x] Server-only ElevenLabs briefing route and non-secret health endpoint.
-- [x] Grounded voice analyst with microphone input, transcript, and typed fallback.
+- [x] Continuous grounded voice analyst with automatic listen-after-answer,
+  transcript, explicit stop control, and typed fallback.
 - [x] Vercel project link and production environment variables.
 - [x] Production Vercel deployment and final live smoke test.
 - [ ] Submission video, Devpost copy, screenshots, and final rules check.
