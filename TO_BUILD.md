@@ -54,8 +54,9 @@ contract is a fixed, single-viewport evidence cockpit:
   the browser.
 - Put the active dataset summary, upload/reset controls, and complete episode
   table in an internally scrolling right-side drawer.
-- Put the continuous ElevenLabs analyst in a separate right-side drawer so voice
-  controls never crowd the evidence grid.
+- Put the continuous ElevenLabs analyst in a compact top-right answer bubble so
+  it never covers the evidence grid. Show only the latest assistant answer and
+  keep that answer visible after **End conversation** stops the microphone and audio.
 - Keep the exact scoring method and limitation in the repository guide and voice
   knowledge, while using concise chart-level explanations in the cockpit.
 - Keep ElevenLabs behind a Vercel server route; never expose the key to the browser.
@@ -76,8 +77,8 @@ contract is a fixed, single-viewport evidence cockpit:
 - [x] Browser-local comparison JSON upload, strict runtime validation, demo reset,
   dataset summary, and complete dataset side drawer.
 - [x] Server-only ElevenLabs briefing route and non-secret health endpoint.
-- [x] Continuous grounded voice analyst with automatic listen-after-answer,
-  transcript, explicit stop control, and typed fallback.
+- [x] Continuous grounded voice analyst with automatic listen-after-answer, an
+  answer-only transcript bubble, and an explicit end-conversation control.
 - [x] Vercel project link and production environment variables.
 - [x] Production Vercel deployment and final live smoke test.
 - [ ] Submission video, Devpost copy, screenshots, and final rules check.

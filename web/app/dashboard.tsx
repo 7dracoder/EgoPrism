@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { AlertTriangle, Database, Mic, Upload, X } from "lucide-react";
+import { Database, Mic } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import DataDrawer, { type UploadStatus } from "./data-drawer";
@@ -90,7 +90,7 @@ export default function Dashboard({ data }: DashboardProps) {
   const sourceLabel = dataOrigin === "uploaded"
     ? "Uploaded JSON"
     : activeData.source === SCALED_DEMO_SOURCE
-      ? "12K synthetic demo"
+      ? "12K active dataset"
       : activeData.source === "modal"
         ? "Modal live"
         : "Bundled cache";
@@ -162,7 +162,7 @@ export default function Dashboard({ data }: DashboardProps) {
           <span>{activeData.task.replaceAll("_", " ")}</span>
           <span>{activeData.episodes.length.toLocaleString()} episodes</span>
           <span>{activeData.quality}</span>
-          <span data-fixture={isDemoFixture}>{sourceLabel}</span>
+          <span>{sourceLabel}</span>
         </div>
 
         <nav className="cockpit-actions" aria-label="Dashboard actions">
@@ -170,7 +170,13 @@ export default function Dashboard({ data }: DashboardProps) {
             <Database aria-hidden="true" size={17} />
             <span>Dataset</span>
           </button>
-          <button type="button" className="cockpit-button cockpit-button--primary" onClick={() => setDrawer("voice")}>
+          <button
+            type="button"
+            className="cockpit-button cockpit-button--primary"
+            aria-controls="voice-answer-tooltip"
+            aria-expanded={drawer === "voice"}
+            onClick={() => setDrawer((current) => current === "voice" ? null : "voice")}
+          >
             <Mic aria-hidden="true" size={17} />
             <span>Voice AI</span>
           </button>
@@ -193,14 +199,6 @@ export default function Dashboard({ data }: DashboardProps) {
             <CompactScore label="Subset A" score={activeData.subsetA.score} active={activeData.winner === "A"} />
             <CompactScore label="Subset B" score={activeData.subsetB.score} active={activeData.winner === "B"} />
           </div>
-          <aside className="decision-strip__validity" data-fixture={isDemoFixture}>
-            <AlertTriangle aria-hidden="true" size={17} />
-            <div>
-              <strong>{isDemoFixture ? "Demo-valid, not research-valid" : "User-provided comparison"}</strong>
-              <span>{isDemoFixture ? "12K summaries · 32 raw prototypes" : "Verify provenance before making a claim"}</span>
-            </div>
-            <button type="button" onClick={() => setDrawer("data")}>View data</button>
-          </aside>
         </section>
 
         <nav className="panel-tabs" aria-label="Visualization panels">
@@ -247,24 +245,14 @@ export default function Dashboard({ data }: DashboardProps) {
       />
 
       {drawer === "voice" ? (
-        <div className="drawer-layer">
-          <button type="button" className="drawer-scrim" onClick={() => setDrawer(null)} aria-label="Close voice assistant" />
-          <aside className="side-drawer side-drawer--voice" role="dialog" aria-modal="true" aria-label="EgoPrism voice analyst">
-            <header className="side-drawer__head">
-              <div><span>ElevenLabs</span><h2>Voice analyst</h2></div>
-              <button type="button" onClick={() => setDrawer(null)} aria-label="Close voice assistant"><X aria-hidden="true" size={20} /></button>
-            </header>
-            <div className="side-drawer__body">
-              {dataOrigin === "uploaded" ? (
-                <div className="voice-context-note">
-                  <Upload aria-hidden="true" size={16} />
-                  <span>Method answers remain valid. Numeric voice answers currently describe the shipped demo; use the four panels for uploaded results.</span>
-                </div>
-              ) : null}
-              <VoiceAgent />
-            </div>
-          </aside>
-        </div>
+        <aside
+          id="voice-answer-tooltip"
+          className="voice-tooltip"
+          role="dialog"
+          aria-label="EgoPrism voice analyst"
+        >
+          <VoiceAgent />
+        </aside>
       ) : null}
     </div>
   );

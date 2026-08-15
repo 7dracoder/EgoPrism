@@ -209,13 +209,14 @@ EgoPrism has two separate voice experiences:
    George voice, `eleven_flash_v2_5`, and MP3 44.1 kHz / 128 kbps output by
    default. Override it with `EGOPRISM_ELEVEN_VOICE_ID` and
    `EGOPRISM_ELEVEN_MODEL_ID`.
-2. The **Ask AI** control accepts a microphone or typed question about the page,
-   maps it to versioned, verified EgoPrism knowledge, and uses ElevenLabs to
-   speak the answer. After each spoken response it automatically opens the
-   microphone again, continuing until the user presses **Stop assistant**.
+2. The **Voice AI** control opens a compact answer bubble, starts listening,
+   maps each spoken question to versioned, verified EgoPrism knowledge, and uses
+   ElevenLabs to speak the answer. Only the latest assistant answer is shown as
+   text. After each spoken response the microphone opens again automatically,
+   continuing until the user presses **End conversation**; ending leaves the
+   final answer visible.
    `/api/voice-agent/answer` performs the grounded mapping;
-   `/api/voice-agent/speak` performs server-only text-to-speech. Unsupported
-   browser voice input falls back to the same typed experience.
+   `/api/voice-agent/speak` performs server-only text-to-speech.
 
 Use a restricted ElevenLabs key with only text-to-speech permission and
 conservative account usage limits. The spoken answers come from a fixed topic

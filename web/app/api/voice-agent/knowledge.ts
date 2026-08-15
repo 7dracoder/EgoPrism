@@ -22,7 +22,7 @@ export const voiceAnswers = {
   track:
     "EgoPrism is the Track 2 quantitative diversity measurement project. Its core claim is that, for a matched task and dataset size, one slice can cover more distinct visual contexts and manipulation patterns than another. It is a data-selection signal, not a downstream policy evaluation.",
   dashboard:
-    "The Hallmark Cobalt dashboard is a fixed single-screen workbench with no page-level vertical scrolling. Desktop shows four panels at once: visual projection, visual and motion cluster coverage, score anatomy with confidence intervals, and an episode inspector. Smaller screens use four tabs while staying within the viewport. Dataset details and validated JSON upload open from the right, and the continuous ElevenLabs assistant uses a separate side drawer.",
+    "The Hallmark Cobalt dashboard is a fixed single-screen workbench with no page-level vertical scrolling. Desktop shows four panels at once: visual projection, visual and motion cluster coverage, score anatomy with confidence intervals, and an episode inspector. Smaller screens use four tabs while staying within the viewport. Dataset details and validated JSON upload open from the right, while the continuous ElevenLabs assistant uses a compact answer-only bubble.",
 } as const;
 
 export type VoiceTopic = keyof typeof voiceAnswers;
