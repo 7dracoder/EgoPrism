@@ -3,16 +3,21 @@
 import {
   AlertTriangle,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Database,
   FileJson,
   RotateCcw,
+  Search,
   ShieldCheck,
   Upload,
   X,
 } from "lucide-react";
-import { useRef, useState, type DragEvent } from "react";
+import { useDeferredValue, useMemo, useRef, useState, type DragEvent } from "react";
 
 import type { ComparisonData } from "./data/types";
+
+const TABLE_PAGE_SIZE = 100;
 
 export type UploadStatus =
   | { state: "idle"; message: string }
@@ -41,6 +46,29 @@ export default function DataDrawer({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const deferredQuery = useDeferredValue(query);
+  const filteredEpisodes = useMemo(() => {
+    const normalized = deferredQuery.trim().toLowerCase();
+    if (!normalized) return data.episodes;
+    return data.episodes.filter((episode) =>
+      episode.id.toLowerCase().includes(normalized) ||
+      episode.subset.toLowerCase() === normalized ||
+      episode.scene.toLowerCase().includes(normalized) ||
+      episode.lab.toLowerCase().includes(normalized)
+    );
+  }, [data.episodes, deferredQuery]);
+  const pageCount = Math.max(1, Math.ceil(filteredEpisodes.length / TABLE_PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const visibleEpisodes = useMemo(
+    () => filteredEpisodes.slice((currentPage - 1) * TABLE_PAGE_SIZE, currentPage * TABLE_PAGE_SIZE),
+    [currentPage, filteredEpisodes],
+  );
+  const firstVisibleRow = filteredEpisodes.length === 0
+    ? 0
+    : (currentPage - 1) * TABLE_PAGE_SIZE + 1;
+  const lastVisibleRow = Math.min(currentPage * TABLE_PAGE_SIZE, filteredEpisodes.length);
 
   if (!open) return null;
 
@@ -70,10 +98,11 @@ export default function DataDrawer({
               <small>{isDemoFixture ? "Synthetic demo" : "Uploaded JSON"}</small>
             </div>
             <strong>{datasetName}</strong>
-            <p>{data.task} · {data.episodes.length} episodes · {data.quality}</p>
+            <p>{data.task} · {data.episodes.length.toLocaleString()} episodes · {data.quality}</p>
+            {isDemoFixture ? <p className="dataset-current__provenance">12,000 unique summary records derived from 32 raw Zarr prototypes for scale testing.</p> : null}
             <div>
-              <span>A: {data.subsetA.episodes} episodes</span>
-              <span>B: {data.subsetB.episodes} episodes</span>
+              <span>A: {data.subsetA.episodes.toLocaleString()} episodes</span>
+              <span>B: {data.subsetB.episodes.toLocaleString()} episodes</span>
               <span>K = {data.clusterCount}</span>
               <span>{data.method.bootstrapSamples} bootstraps</span>
             </div>
@@ -140,13 +169,29 @@ export default function DataDrawer({
           <section className="dataset-table-section" aria-labelledby="dataset-table-title">
             <div className="drawer-section-title drawer-section-title--row">
               <div><span>Dataset used</span><h3 id="dataset-table-title">Episode index</h3></div>
-              <small>{data.episodes.length} total</small>
+              <small>{data.episodes.length.toLocaleString()} total</small>
+            </div>
+            <div className="dataset-table-tools">
+              <label>
+                <Search aria-hidden="true" size={15} />
+                <span className="sr-only">Search episodes</span>
+                <input
+                  type="search"
+                  value={query}
+                  placeholder="Search ID, subset, scene, or lab"
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    setPage(1);
+                  }}
+                />
+              </label>
+              <span>{firstVisibleRow.toLocaleString()}–{lastVisibleRow.toLocaleString()} of {filteredEpisodes.length.toLocaleString()}</span>
             </div>
             <div className="dataset-table-wrap">
               <table className="dataset-table">
                 <thead><tr><th>Episode</th><th>Set</th><th>Scene</th><th>Visual</th><th>Motion</th></tr></thead>
                 <tbody>
-                  {data.episodes.map((episode) => (
+                  {visibleEpisodes.map((episode) => (
                     <tr key={episode.id}>
                       <td>{episode.id}</td>
                       <td><span data-subset={episode.subset}>{episode.subset}</span></td>
@@ -158,6 +203,25 @@ export default function DataDrawer({
                 </tbody>
               </table>
             </div>
+            <nav className="dataset-pagination" aria-label="Episode table pages">
+              <button
+                type="button"
+                aria-label="Previous episode page"
+                disabled={currentPage === 1}
+                onClick={() => setPage(Math.max(1, currentPage - 1))}
+              >
+                <ChevronLeft aria-hidden="true" size={16} />
+              </button>
+              <span>Page {currentPage.toLocaleString()} of {pageCount.toLocaleString()}</span>
+              <button
+                type="button"
+                aria-label="Next episode page"
+                disabled={currentPage === pageCount}
+                onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
+              >
+                <ChevronRight aria-hidden="true" size={16} />
+              </button>
+            </nav>
           </section>
         </div>
       </aside>

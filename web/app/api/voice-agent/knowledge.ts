@@ -1,6 +1,6 @@
 export const voiceAnswers = {
   overview:
-    "EgoPrism compares two task-matched robot dataset slices and measures how broadly each one covers visual contexts and motion patterns. The current fold-clothes demonstration compares 16 episodes per subset and selects Subset B. Voice, captions, metadata counts, and language models never affect the score.",
+    "EgoPrism compares two task-matched robot dataset slices and measures how broadly each one covers visual contexts and motion patterns. The initial fold-clothes dashboard contains 12,000 deterministic synthetic summary records, with 6,000 per subset, and selects Subset B. Voice, captions, metadata counts, and language models never affect the score.",
   winner:
     "Subset B wins with a score of 77.1 versus 17.5 for Subset A, a gap of about 59.6 points. B reaches all five visual clusters and shows more varied manipulation motion, while A occupies one visual cluster and has more idle behavior. The confidence intervals separate, so the conservative winner rule is satisfied.",
   score:
@@ -8,7 +8,7 @@ export const voiceAnswers = {
   confidence:
     "EgoPrism resamples whole episodes 200 times to form 95 percent bootstrap confidence intervals. It declares a winner only when the intervals do not overlap and the score gap is at least two points. Otherwise it reports no clear difference.",
   evidence:
-    "The fixed cockpit has four evidence panels. The visual projection maps one episode per mark: outlined squares are A, teal circles are B, and the numeral is its visual cluster. Nearby marks have more similar image fingerprints, but screen distance is not the score. The cluster panel compares visual and motion occupancy with an upper A bar and lower B bar. The score panel shows visual and motion entropy plus bootstrap intervals. The episode inspector connects a selected point to its frame and metrics. Uploaded comparison JSON replaces all four panels without using a language model to score anything.",
+    "The fixed cockpit has four evidence panels. For performance, the visual projection shows a deterministic stratified sample of 320 from all 12,000 episode records: outlined squares are A, teal circles are B, and the numeral is its visual cluster. Nearby marks have more similar image fingerprints, but screen distance is not the score. The cluster and score panels use the complete dataset. The episode inspector connects a selected point to its frame and metrics. Uploaded comparison JSON replaces all four panels without using a language model to score anything.",
   visual:
     "The visual signal samples eight front-camera frames per episode. It uses stored DINO vectors when available, L2-normalizes and mean-pools them, then compares cluster coverage across the pooled subsets. Subset B covers five visual clusters in the current demonstration, while A covers one.",
   motion:
@@ -16,7 +16,7 @@ export const voiceAnswers = {
   limitations:
     "A higher EgoPrism score means broader measured cluster coverage; it does not guarantee better robot policy performance. The included episodes are synthetic schema-faithful fixtures, so they support a reproducible product demonstration rather than a final scientific EgoVerse claim. An approved real data slice is still needed for that claim.",
   fixtures:
-    "The current dataset is valid for an end-to-end product and method demonstration, but not for a scientific claim about real EgoVerse recordings. The repository ships 32 deterministic, synthetic schema-faithful episodes so the pipeline can run without private EgoDB access. They preserve the expected image, embedding, pose, and metadata structure. Replace the manifests and zarr stores with an approved real slice before presenting the result as research evidence.",
+    "The current dataset is valid for an end-to-end product, scale, and method demonstration, but not for a scientific claim about real EgoVerse recordings. The dashboard expands 32 deterministic, schema-faithful raw prototypes into 12,000 unique synthetic summary records, 6,000 per subset. The 32 prototypes preserve the expected image, embedding, pose, and metadata structure; the expansion tests realistic dashboard volume without pretending that 12,000 raw recordings were collected. Replace the manifests and zarr stores with an approved real slice before presenting the result as research evidence.",
   architecture:
     "The scoring pipeline and fixtures live in Python, while Modal serves a read-only summary API. The Hallmark dashboard is a Next.js application deployed on Vercel from the web directory of the GitHub repository. It uses a deterministic bundled fallback if Modal is temporarily unavailable, and ElevenLabs speech is called only from server routes.",
   track:

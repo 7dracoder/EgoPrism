@@ -3,9 +3,10 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { AlertTriangle, Database, Mic, Upload, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import DataDrawer, { type UploadStatus } from "./data-drawer";
+import { scaleDemoComparison, SCALED_DEMO_SOURCE } from "./data/scale-demo";
 import type { ComparisonData, Episode } from "./data/types";
 import { isComparisonData } from "./data/validate";
 import {
@@ -21,7 +22,7 @@ type DashboardProps = { data: ComparisonData };
 type DrawerKind = "data" | "voice" | null;
 type DataOrigin = "initial" | "uploaded";
 
-const FIXTURE_ID_RE = /^fold_[ab]_\d{3}$/;
+const FIXTURE_ID_RE = /^fold_[ab]_\d{3,5}$/;
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 const VoiceAgent = dynamic(() => import("./voice-agent"), {
@@ -39,7 +40,11 @@ function isFixtureData(data: ComparisonData) {
 }
 
 function firstEpisode(data: ComparisonData) {
-  return data.episodes.toSorted((a, b) => b.novelty - a.novelty)[0]!;
+  let mostNovel = data.episodes[0]!;
+  for (let index = 1; index < data.episodes.length; index += 1) {
+    if (data.episodes[index]!.novelty > mostNovel.novelty) mostNovel = data.episodes[index]!;
+  }
+  return mostNovel;
 }
 
 function CompactScore({
@@ -61,13 +66,14 @@ function CompactScore({
 }
 
 export default function Dashboard({ data }: DashboardProps) {
-  const initialFixture = isFixtureData(data);
-  const [activeData, setActiveData] = useState(data);
+  const initialData = useMemo(() => scaleDemoComparison(data), [data]);
+  const initialFixture = useMemo(() => isFixtureData(initialData), [initialData]);
+  const [activeData, setActiveData] = useState(initialData);
   const [dataOrigin, setDataOrigin] = useState<DataOrigin>("initial");
   const [datasetName, setDatasetName] = useState(
-    initialFixture ? "Bundled fold-clothes fixture" : "Modal comparison",
+    initialFixture ? "12K synthetic fold-clothes corpus" : "Modal comparison",
   );
-  const [selectedEpisodeId, setSelectedEpisodeId] = useState(firstEpisode(data).id);
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState(firstEpisode(initialData).id);
   const [drawer, setDrawer] = useState<DrawerKind>(null);
   const [mobilePanel, setMobilePanel] = useState<PanelId>("projection");
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
@@ -75,14 +81,19 @@ export default function Dashboard({ data }: DashboardProps) {
     message: "Expected: the JSON payload produced by EgoPrism’s comparison pipeline.",
   });
 
-  const selectedEpisode =
-    activeData.episodes.find((episode) => episode.id === selectedEpisodeId) ?? firstEpisode(activeData);
-  const isDemoFixture = dataOrigin === "initial" && isFixtureData(activeData);
+  const episodeById = useMemo(
+    () => new Map(activeData.episodes.map((episode) => [episode.id, episode])),
+    [activeData.episodes],
+  );
+  const selectedEpisode = episodeById.get(selectedEpisodeId) ?? firstEpisode(activeData);
+  const isDemoFixture = dataOrigin === "initial" && initialFixture;
   const sourceLabel = dataOrigin === "uploaded"
     ? "Uploaded JSON"
-    : activeData.source === "modal"
-      ? "Modal live"
-      : "Bundled cache";
+    : activeData.source === SCALED_DEMO_SOURCE
+      ? "12K synthetic demo"
+      : activeData.source === "modal"
+        ? "Modal live"
+        : "Bundled cache";
   const winnerScore = activeData.winner === "A"
     ? activeData.subsetA.score
     : activeData.winner === "B"
@@ -120,7 +131,7 @@ export default function Dashboard({ data }: DashboardProps) {
       setMobilePanel("projection");
       setUploadStatus({
         state: "success",
-        message: `${file.name} is active. All four visualizations now use its ${parsed.episodes.length} episodes.`,
+        message: `${file.name} is active. All four visualizations now use its ${parsed.episodes.length.toLocaleString()} episodes.`,
       });
     } catch (error) {
       setUploadStatus({
@@ -131,10 +142,10 @@ export default function Dashboard({ data }: DashboardProps) {
   };
 
   const resetDemo = () => {
-    setActiveData(data);
+    setActiveData(initialData);
     setDataOrigin("initial");
-    setDatasetName(initialFixture ? "Bundled fold-clothes fixture" : "Modal comparison");
-    setSelectedEpisodeId(firstEpisode(data).id);
+    setDatasetName(initialFixture ? "12K synthetic fold-clothes corpus" : "Modal comparison");
+    setSelectedEpisodeId(firstEpisode(initialData).id);
     setMobilePanel("projection");
     setUploadStatus({ state: "idle", message: "Bundled comparison restored." });
   };
@@ -149,7 +160,7 @@ export default function Dashboard({ data }: DashboardProps) {
 
         <div className="cockpit-context" aria-label="Current comparison">
           <span>{activeData.task.replaceAll("_", " ")}</span>
-          <span>{activeData.episodes.length} episodes</span>
+          <span>{activeData.episodes.length.toLocaleString()} episodes</span>
           <span>{activeData.quality}</span>
           <span data-fixture={isDemoFixture}>{sourceLabel}</span>
         </div>
@@ -186,7 +197,7 @@ export default function Dashboard({ data }: DashboardProps) {
             <AlertTriangle aria-hidden="true" size={17} />
             <div>
               <strong>{isDemoFixture ? "Demo-valid, not research-valid" : "User-provided comparison"}</strong>
-              <span>{isDemoFixture ? "Synthetic fixtures · inspect methodology" : "Verify provenance before making a claim"}</span>
+              <span>{isDemoFixture ? "12K summaries · 32 raw prototypes" : "Verify provenance before making a claim"}</span>
             </div>
             <button type="button" onClick={() => setDrawer("data")}>View data</button>
           </aside>

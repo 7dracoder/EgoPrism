@@ -1,4 +1,5 @@
 import fallbackData from "../../data/fallback.json";
+import { DEMO_EPISODES_PER_SUBSET } from "../../data/scale-demo";
 import type { ComparisonData } from "../../data/types";
 
 export const runtime = "nodejs";
@@ -23,7 +24,12 @@ export async function GET() {
     );
   }
 
-  const data = fallbackData as unknown as ComparisonData;
+  const baseData = fallbackData as unknown as ComparisonData;
+  const data: ComparisonData = {
+    ...baseData,
+    subsetA: { ...baseData.subsetA, episodes: DEMO_EPISODES_PER_SUBSET },
+    subsetB: { ...baseData.subsetB, episodes: DEMO_EPISODES_PER_SUBSET },
+  };
   const voiceId = process.env.EGOPRISM_ELEVEN_VOICE_ID?.trim() || "JBFqnCBsd6RMkjVDRZzb";
   const modelId = process.env.EGOPRISM_ELEVEN_MODEL_ID?.trim() || "eleven_flash_v2_5";
   const endpoint = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`);

@@ -48,8 +48,10 @@ contract is a fixed, single-viewport evidence cockpit:
   page-level vertical scrolling.
 - Make projection points and episode thumbnails selectable and linked to the same
   active episode.
-- Default to the bundled 32-episode fixture, but accept a schema-compatible
-  comparison JSON file and immediately redraw every panel in the browser.
+- Default to a deterministic 12,000-record synthetic summary corpus—6,000 per
+  subset—expanded from the 32 schema-faithful raw prototypes. Accept a
+  schema-compatible comparison JSON file and immediately redraw every panel in
+  the browser.
 - Put the active dataset summary, upload/reset controls, and complete episode
   table in an internally scrolling right-side drawer.
 - Put the continuous ElevenLabs analyst in a separate right-side drawer so voice
@@ -62,6 +64,8 @@ contract is a fixed, single-viewport evidence cockpit:
 ## Build status
 
 - [x] Schema-faithful 32-episode demo fixture and manifests.
+- [x] Deterministic 12,000-record web scale corpus with full-data aggregate
+  charts, a 320-point stratified projection, and a searchable paginated index.
 - [x] Deterministic extraction, feature, clustering, scoring, and bootstrap pipeline.
 - [x] Streamlit reference dashboard and optional local voice briefing.
 - [x] Serializable web payload and regression tests.
@@ -85,7 +89,9 @@ contract is a fixed, single-viewport evidence cockpit:
 
 - `pytest -q` passes the Python pipeline and web-payload tests.
 - `npm run typecheck` and `npm run build` pass under `web/`.
-- Modal `/summary` responds with 32 episodes and the deterministic winner.
+- Modal `/summary` responds with the 32 raw demo prototypes and deterministic
+  winner; the web layer recognizes that demo payload and expands it to 12,000
+  unique synthetic summaries before rendering.
 - Vercel `/api/health` reports Modal and ElevenLabs configured without returning
   secret values.
 - Vercel `/api/voice` returns MP3 audio from the fixed result briefing.

@@ -16,6 +16,7 @@ export const panelOptions: Array<{ id: PanelId; label: string; icon: typeof Eye 
 ];
 
 const UNDERSCORE_RE = /_/g;
+const MAX_PROJECTION_POINTS = 320;
 
 const percent = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
@@ -43,36 +44,87 @@ function occupancyCount(items: Occupancy[], cluster: number) {
   return items.find((item) => item.cluster === cluster)?.count ?? 0;
 }
 
+function projectionSample(episodes: Episode[], maximum: number) {
+  if (episodes.length <= maximum) return episodes;
+
+  const buckets = new Map<string, Episode[]>();
+  for (const episode of episodes) {
+    const key = `${episode.subset}:${episode.visualCluster}`;
+    const bucket = buckets.get(key);
+    if (bucket) bucket.push(episode);
+    else buckets.set(key, [episode]);
+  }
+
+  const sampled: Episode[] = [];
+  const sampledIds = new Set<string>();
+  const quota = Math.max(1, Math.floor(maximum / buckets.size));
+  for (const bucket of buckets.values()) {
+    const take = Math.min(quota, bucket.length);
+    for (let index = 0; index < take; index += 1) {
+      const episode = bucket[Math.floor(((index + 0.5) * bucket.length) / take)]!;
+      sampled.push(episode);
+      sampledIds.add(episode.id);
+    }
+  }
+
+  const stride = episodes.length / Math.max(1, maximum - sampled.length);
+  for (let cursor = 0; sampled.length < maximum && cursor < episodes.length; cursor += stride) {
+    const episode = episodes[Math.floor(cursor)]!;
+    if (!sampledIds.has(episode.id)) {
+      sampled.push(episode);
+      sampledIds.add(episode.id);
+    }
+  }
+  for (const episode of episodes) {
+    if (sampled.length >= maximum) break;
+    if (!sampledIds.has(episode.id)) sampled.push(episode);
+  }
+  return sampled.slice(0, maximum);
+}
+
 function ScatterPlot({
   episodes,
-  selected,
+  selectedEpisode,
   onSelect,
 }: {
   episodes: Episode[];
-  selected: string;
+  selectedEpisode: Episode;
   onSelect: (episode: Episode) => void;
 }) {
+  const projection = useMemo(() => {
+    let minX = episodes[0]!.x;
+    let maxX = episodes[0]!.x;
+    let minY = episodes[0]!.y;
+    let maxY = episodes[0]!.y;
+    for (let index = 1; index < episodes.length; index += 1) {
+      const episode = episodes[index]!;
+      if (episode.x < minX) minX = episode.x;
+      if (episode.x > maxX) maxX = episode.x;
+      if (episode.y < minY) minY = episode.y;
+      if (episode.y > maxY) maxY = episode.y;
+    }
+    return { minX, maxX, minY, maxY, sampled: projectionSample(episodes, MAX_PROJECTION_POINTS) };
+  }, [episodes]);
+
   const positioned = useMemo(() => {
-    const xs = episodes.map((episode) => episode.x);
-    const ys = episodes.map((episode) => episode.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+    const sampled = projection.sampled.some((episode) => episode.id === selectedEpisode.id)
+      ? projection.sampled
+      : [...projection.sampled.slice(0, -1), selectedEpisode];
+    const { minX, maxX, minY, maxY } = projection;
     const xRange = maxX - minX || 1;
     const yRange = maxY - minY || 1;
-    return episodes.map((episode) => ({
+    return sampled.map((episode) => ({
       episode,
       left: 5 + ((episode.x - minX) / xRange) * 90,
       top: 7 + (1 - (episode.y - minY) / yRange) * 86,
     }));
-  }, [episodes]);
+  }, [projection, selectedEpisode]);
 
   return (
     <div
       className="viz-scatter"
       role="group"
-      aria-label="Two-dimensional visual projection. Nearby points are visually similar; position is not the score."
+      aria-label={`Representative two-dimensional visual projection of ${positioned.length} from ${episodes.length} episodes. Nearby points are visually similar; position is not the score.`}
     >
       <span className="viz-scatter__axis viz-scatter__axis--x">projection axis 1</span>
       <span className="viz-scatter__axis viz-scatter__axis--y">projection axis 2</span>
@@ -82,7 +134,7 @@ function ScatterPlot({
           key={episode.id}
           className="viz-scatter__point"
           data-subset={episode.subset}
-          data-selected={selected === episode.id}
+          data-selected={selectedEpisode.id === episode.id}
           style={{ "--point-x": `${left}%`, "--point-y": `${top}%` } as CSSProperties}
           aria-label={`${episode.id}, subset ${episode.subset}, visual cluster ${episode.visualCluster + 1}`}
           onClick={() => onSelect(episode)}
@@ -105,7 +157,11 @@ export function ProjectionPanel({
 }) {
   return (
     <article className="viz-panel viz-panel--dark" data-panel="projection">
-      <PanelHeader index="01" title="Visual projection" detail="PCA → UMAP · click any episode" />
+      <PanelHeader
+        index="01"
+        title="Visual projection"
+        detail={`PCA → UMAP · ${Math.min(MAX_PROJECTION_POINTS, data.episodes.length).toLocaleString()} of ${data.episodes.length.toLocaleString()} points`}
+      />
       <div className="viz-legend" aria-label="Projection legend">
         <span><i data-subset="A" /> A square</span>
         <span><i data-subset="B" /> B circle</span>
@@ -113,7 +169,7 @@ export function ProjectionPanel({
       </div>
       <ScatterPlot
         episodes={data.episodes}
-        selected={selectedEpisode.id}
+        selectedEpisode={selectedEpisode}
         onSelect={onSelect}
       />
       <div className="viz-selected" aria-live="polite">
@@ -164,7 +220,7 @@ function PairedBars({
                 <i data-subset="A" style={{ "--bar-width": `${(countA / maxCount) * 100}%` } as CSSProperties} />
                 <i data-subset="B" style={{ "--bar-width": `${(countB / maxCount) * 100}%` } as CSSProperties} />
               </div>
-              <small>{countA} / {countB}</small>
+              <small>{countA.toLocaleString()} / {countB.toLocaleString()}</small>
             </div>
           );
         })}
@@ -269,6 +325,7 @@ function EpisodePreview({ episode, compact = false }: { episode: Episode; compac
       fill
       sizes={compact ? "8rem" : "(max-width: 52rem) 45vw, 18vw"}
       unoptimized={episode.preview.startsWith("data:image/")}
+      loading={compact ? "lazy" : "eager"}
     />
   ) : (
     <span className="episode-placeholder"><ImageIcon aria-hidden="true" size={compact ? 16 : 24} />No local preview</span>
@@ -284,10 +341,16 @@ export function EpisodesPanel({
   selectedEpisode: Episode;
   onSelect: (episode: Episode) => void;
 }) {
-  const ranked = useMemo(
-    () => data.episodes.toSorted((a, b) => b.novelty - a.novelty).slice(0, 6),
-    [data.episodes],
-  );
+  const ranked = useMemo(() => {
+    const highest: Episode[] = [];
+    for (const episode of data.episodes) {
+      const insertionIndex = highest.findIndex((candidate) => episode.novelty > candidate.novelty);
+      if (insertionIndex === -1) highest.push(episode);
+      else highest.splice(insertionIndex, 0, episode);
+      if (highest.length > 6) highest.pop();
+    }
+    return highest;
+  }, [data.episodes]);
 
   return (
     <article className="viz-panel" data-panel="episodes">
