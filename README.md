@@ -156,8 +156,9 @@ flowchart LR
   to the browser.
 
 The score/metadata endpoint and frame-preview endpoint are deliberately
-independent. Production frames have been explicitly cleared for public display
-and are served through the Modal preview allowlist; changing preview
+independent. The 12,000 selected production episodes have been explicitly
+cleared for public display and are served through an exact-ID Modal preview
+allowlist; changing preview
 availability cannot change the stored result.
 
 ## Why the result is useful
