@@ -817,6 +817,267 @@ h3 {
   padding: var(--space-md);
 }
 
+.voice-agent-loading,
+.voice-agent-section {
+  border-top: var(--rule-hairline);
+  scroll-margin-top: 5.5rem;
+}
+
+.voice-agent-loading {
+  align-items: center;
+  color: var(--color-muted);
+  display: flex;
+  gap: var(--space-sm);
+  min-height: 18rem;
+  padding-block: var(--space-3xl);
+}
+
+.voice-agent-section {
+  display: grid;
+  gap: var(--space-xl);
+  padding-block: var(--space-3xl);
+}
+
+.voice-agent-intro {
+  align-content: start;
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.voice-agent-intro p {
+  color: var(--color-muted);
+  max-width: 58ch;
+}
+
+.voice-agent-trust {
+  align-items: flex-start;
+  border-top: var(--rule-hairline);
+  color: var(--color-muted);
+  display: flex;
+  font-size: var(--text-sm);
+  gap: var(--space-sm);
+  padding-block-start: var(--space-md);
+}
+
+.voice-agent-trust svg {
+  color: var(--color-success);
+  flex: 0 0 auto;
+  margin-block-start: var(--space-3xs);
+}
+
+.voice-agent-console {
+  background: var(--color-graphite);
+  border-radius: var(--radius-panel);
+  color: var(--color-graphite-ink);
+  min-width: 0;
+  padding: var(--space-lg);
+}
+
+.voice-agent-console__head {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: space-between;
+}
+
+.agent-identity {
+  align-items: center;
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.agent-identity__mark {
+  align-items: center;
+  background: var(--color-accent);
+  border-radius: var(--radius-control);
+  color: var(--color-accent-ink);
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.agent-identity > span:last-child {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.agent-identity strong {
+  color: var(--color-graphite-ink);
+  font-family: var(--font-display);
+  line-height: 1.2;
+}
+
+.agent-identity small,
+.agent-status {
+  color: var(--color-graphite-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.agent-status {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-xs);
+  min-height: 2.5rem;
+}
+
+.agent-status i {
+  background: var(--color-graphite-muted);
+  border-radius: var(--radius-round);
+  display: inline-block;
+  height: var(--space-xs);
+  width: var(--space-xs);
+}
+
+.voice-agent-console[data-status="listening"] .agent-status i,
+.voice-agent-console[data-status="thinking"] .agent-status i {
+  animation: pulse 1.2s var(--ease-in-out) infinite;
+  background: var(--color-accent);
+}
+
+.voice-agent-console[data-status="speaking"] .agent-status i {
+  background: var(--color-success);
+}
+
+.voice-agent-console[data-status="error"] .agent-status i {
+  background: var(--color-error);
+}
+
+.agent-transcript {
+  border-block: var(--rule-graphite);
+  display: grid;
+  gap: var(--space-md);
+  margin-block: var(--space-lg);
+  max-height: 22rem;
+  min-height: 14rem;
+  overflow-y: auto;
+  padding-block: var(--space-lg);
+}
+
+.agent-message {
+  display: grid;
+  gap: var(--space-xs);
+  max-width: 90%;
+}
+
+.agent-message[data-role="user"] {
+  justify-self: end;
+  text-align: end;
+}
+
+.agent-message > span {
+  color: var(--color-graphite-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+}
+
+.agent-message p {
+  color: var(--color-graphite-ink);
+  margin: 0;
+}
+
+.agent-message[data-role="user"] p {
+  color: var(--color-accent-ink);
+}
+
+.agent-empty {
+  align-self: center;
+  color: var(--color-graphite-muted);
+}
+
+.agent-empty > svg {
+  color: var(--color-accent);
+  margin-block-end: var(--space-sm);
+}
+
+.agent-empty p {
+  margin-block-end: var(--space-sm);
+}
+
+.agent-empty ul {
+  display: grid;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-inline-start: var(--space-lg);
+}
+
+.agent-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.agent-audio {
+  display: block;
+  margin-block-start: var(--space-lg);
+  max-width: 100%;
+  width: 100%;
+}
+
+.button--graphite {
+  background: var(--color-graphite-2);
+  border-color: var(--color-graphite-rule);
+  color: var(--color-graphite-ink);
+}
+
+.button--danger {
+  background: var(--color-error);
+  color: var(--color-accent-ink);
+}
+
+.agent-question {
+  border-top: var(--rule-graphite);
+  display: grid;
+  gap: var(--space-sm);
+  margin-block-start: var(--space-lg);
+  padding-block-start: var(--space-lg);
+}
+
+.agent-question label {
+  color: var(--color-graphite-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.agent-question > div {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.agent-question input {
+  background: var(--color-graphite-2);
+  border: 1px solid var(--color-graphite-rule);
+  border-radius: var(--radius-control);
+  color: var(--color-graphite-ink);
+  min-height: 2.75rem;
+  min-width: 0;
+  outline: 2px solid transparent;
+  padding-inline: var(--space-md);
+}
+
+.agent-question input::placeholder {
+  color: var(--color-graphite-muted);
+}
+
+.agent-question input:disabled {
+  background: var(--color-graphite-2);
+}
+
+.agent-question__helper {
+  color: var(--color-graphite-muted);
+  font-size: var(--text-xs);
+  margin: 0;
+  min-height: 1lh;
+}
+
+.agent-question__helper[data-state="error"] {
+  color: var(--color-error-soft);
+}
+
 .episodes-section {
   border-top: var(--rule-hairline);
 }
@@ -1195,6 +1456,10 @@ h3 {
   to { transform: rotate(1turn); }
 }
 
+@keyframes pulse {
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .button:hover,
   .text-link:hover,
@@ -1282,6 +1547,10 @@ h3 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .agent-question > div {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
   .spec-sheet > div {
     align-items: baseline;
     grid-template-columns: minmax(8rem, 0.8fr) minmax(0, 1.6fr) auto;
@@ -1332,6 +1601,11 @@ h3 {
 
   .method-grid {
     grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.7fr);
+  }
+
+  .voice-agent-section {
+    align-items: start;
+    grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.25fr);
   }
 
   .episode-grid {

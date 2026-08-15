@@ -25,7 +25,8 @@ Modal read-only JSON endpoint
         ↓
 Next.js dashboard on Vercel
         ├── interactive evidence and filters
-        └── server-only ElevenLabs briefing route
+        ├── server-only ElevenLabs briefing route
+        └── grounded question route + ElevenLabs spoken-answer route
 ```
 
 ## Dashboard design mandate
@@ -54,7 +55,8 @@ The dashboard must remain functional, not decorative:
 - [x] Serializable web payload and regression tests.
 - [x] Modal read-only comparison API backed by the `egoverse-data` volume.
 - [x] Hallmark/Cobalt Next.js dashboard with real episode frames.
-- [x] Server-only ElevenLabs route and non-secret health endpoint.
+- [x] Server-only ElevenLabs briefing route and non-secret health endpoint.
+- [x] Grounded voice analyst with microphone input, transcript, and typed fallback.
 - [x] Vercel project link and production environment variables.
 - [x] Production Vercel deployment and final live smoke test.
 - [ ] Submission video, Devpost copy, screenshots, and final rules check.
@@ -67,8 +69,12 @@ The dashboard must remain functional, not decorative:
 - `pytest -q` passes the Python pipeline and web-payload tests.
 - `npm run typecheck` and `npm run build` pass under `web/`.
 - Modal `/summary` responds with 32 episodes and the deterministic winner.
-- Vercel `/api/health` reports both services configured without returning secrets.
+- Vercel `/api/health` reports Modal and ElevenLabs configured without returning
+  secret values.
 - Vercel `/api/voice` returns MP3 audio from the fixed result briefing.
+- Vercel `/api/voice-agent/answer` maps questions to verified project facts.
+- Vercel `/api/voice-agent/speak` returns ElevenLabs MP3 audio while the API key
+  remains server-only.
 - The live dashboard has no console errors, no horizontal overflow at 320, 375,
   414, 768, 1280, and 1920 px, and all clickable labels remain on one line.
 - Hallmark's pre-emit critique and 58-gate slop test pass before handoff.
@@ -77,9 +83,10 @@ The dashboard must remain functional, not decorative:
 
 1. Replace synthetic fixture manifests with an approved real slice if competition
    rules or judging expectations require it; never silently mix fixture and real data.
-2. Record a 60–90 second demo: decision → evidence → episode trace → voice briefing.
+2. Record a 60–90 second demo: decision → evidence → episode trace → ask the
+   voice analyst why B won.
 3. Explain the pooled transform, score formula, winner rule, and limitation.
 4. Include deployment URLs, repository, architecture, and test evidence in Devpost.
 5. Rotate the ElevenLabs key after the demo because it previously appeared in
-   plaintext during local setup; keep the replacement restricted to TTS and a
-   small quota.
+   plaintext during local setup; keep the replacement restricted to TTS with
+   conservative usage limits.

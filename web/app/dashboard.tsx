@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   Activity,
   ArrowDown,
@@ -10,9 +11,9 @@ import {
   Database,
   ExternalLink,
   Layers3,
+  Mic,
   Play,
   Search,
-  Volume2,
   X,
 } from "lucide-react";
 import {
@@ -37,9 +38,20 @@ const percent = (value: number | null) =>
 const commandItems = [
   { label: "View decision", detail: "Scores and confidence intervals", href: "#decision" },
   { label: "Inspect evidence", detail: "Visual projection and cluster occupancy", href: "#evidence" },
+  { label: "Ask EgoPrism", detail: "Question the result with the voice analyst", href: "#voice-agent" },
   { label: "Browse episodes", detail: "Filter novelty-ranked examples", href: "#episodes" },
   { label: "Read method", detail: "Formula, thresholds, and limitations", href: "#method" },
 ];
+
+const VoiceAgent = dynamic(() => import("./voice-agent"), {
+  ssr: false,
+  loading: () => (
+    <section className="voice-agent-loading" aria-label="Loading voice analyst">
+      <Mic aria-hidden="true" size={20} />
+      <span>Loading the EgoPrism voice analyst…</span>
+    </section>
+  ),
+});
 
 function occupancyCount(items: Occupancy[], cluster: number) {
   return items.find((item) => item.cluster === cluster)?.count ?? 0;
@@ -240,17 +252,10 @@ export default function Dashboard({ data }: DashboardProps) {
         <nav className="topbar__actions" aria-label="Primary navigation">
           <a href="#evidence">Evidence</a>
           <a href="#episodes">Episodes</a>
-          <button
-            type="button"
-            className="button button--primary"
-            data-state={voiceState}
-            disabled={voiceState === "loading"}
-            aria-label={voiceLabel}
-            onClick={playBriefing}
-          >
-            <Volume2 aria-hidden="true" size={16} />
-            <span>{voiceLabel}</span>
-          </button>
+          <a className="button button--primary" href="#voice-agent" aria-label="Ask EgoPrism by voice">
+            <Mic aria-hidden="true" size={16} />
+            <span>Ask AI</span>
+          </a>
         </nav>
       </header>
 
@@ -430,6 +435,8 @@ export default function Dashboard({ data }: DashboardProps) {
             </aside>
           </div>
         </section>
+
+        <VoiceAgent />
 
         <section className="episodes-section" id="episodes">
           <div className="section-head section-head--episodes">

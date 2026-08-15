@@ -31,8 +31,8 @@ npm run dev
 ```
 
 Set `MODAL_API_URL` in `web/.env.local` to the endpoint above. Add
-`ELEVENLABS_API_KEY` only when testing voice locally. Both values are server-only;
-never prefix either one with `NEXT_PUBLIC_`.
+`ELEVENLABS_API_KEY` only when testing the spoken answers locally. Both values
+are server-only; never prefix either one with `NEXT_PUBLIC_`.
 
 Production verification:
 
@@ -141,15 +141,24 @@ EgoPrism/
 
 ## ElevenLabs integration
 
-EgoPrism calls text-to-speech from server code only—the Next.js route in
-production or Streamlit locally—using the `xi-api-key` header. It uses the
-George voice, `eleven_flash_v2_5`, and MP3 44.1 kHz / 128 kbps output by default.
-Override the voice or model with
-`EGOPRISM_ELEVEN_VOICE_ID` and `EGOPRISM_ELEVEN_MODEL_ID`.
+EgoPrism has two separate voice experiences:
 
-Use a restricted ElevenLabs key with only text-to-speech access and a small
-character quota. The key is never used from client-side JavaScript and is never
-part of the diversity calculation.
+1. The deterministic **Play briefing** control calls text-to-speech from server
+   code only—the Next.js route in production or Streamlit locally. It uses the
+   George voice, `eleven_flash_v2_5`, and MP3 44.1 kHz / 128 kbps output by
+   default. Override it with `EGOPRISM_ELEVEN_VOICE_ID` and
+   `EGOPRISM_ELEVEN_MODEL_ID`.
+2. The **Ask AI** control accepts a microphone or typed question about the page,
+   maps it to versioned, verified EgoPrism knowledge, and uses ElevenLabs to
+   speak the answer. `/api/voice-agent/answer` performs the grounded mapping;
+   `/api/voice-agent/speak` performs server-only text-to-speech. Unsupported
+   browser voice input falls back to the same typed experience.
+
+Use a restricted ElevenLabs key with only text-to-speech permission and
+conservative account usage limits. The spoken answers come from a fixed topic
+set and are CDN-cacheable, which limits both hallucination and repeated cost.
+The key is never used from client-side JavaScript and voice is never part of the
+diversity calculation.
 
 On Vercel, `ELEVENLABS_API_KEY` is a sensitive Production-only variable.
 `MODAL_API_URL` is available to Production, Preview, and Development. The public
