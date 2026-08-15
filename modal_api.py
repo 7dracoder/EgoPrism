@@ -153,7 +153,8 @@ def preview(source: str, episode_id: str):
         images = group["images.front_1"]
         declared = int(row["total_frames"])
         usable = min(int(images.shape[0]), declared) if declared > 0 else int(images.shape[0])
-        item = images[max(0, usable // 2)]
+        frame_index = max(0, usable // 2)
+        item = images.oindex[[frame_index]][0]
         if isinstance(item, np.ndarray) and item.ndim == 3:
             image = Image.fromarray(np.asarray(item, dtype=np.uint8), mode="RGB")
         else:
@@ -162,6 +163,11 @@ def preview(source: str, episode_id: str):
         image.save(output, format="JPEG", quality=86, optimize=True)
         blob = output.getvalue()
     except Exception as exc:
+        print(
+            f"preview extraction failed for {source}:{episode_id}: "
+            f"{type(exc).__name__}: {exc}",
+            flush=True,
+        )
         raise HTTPException(status_code=502, detail="Episode frame is unavailable.") from exc
 
     preview_cache[cache_key] = blob

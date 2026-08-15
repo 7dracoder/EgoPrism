@@ -345,7 +345,7 @@ function EpisodePreview({ episode, compact = false }: { episode: Episode; compac
       onError={() => setFailed(true)}
     />
   ) : (
-    <span className="episode-placeholder"><ImageIcon aria-hidden="true" size={compact ? 16 : 24} />Preview restricted</span>
+    <span className="episode-placeholder"><ImageIcon aria-hidden="true" size={compact ? 16 : 24} />Preview unavailable</span>
   );
 }
 
