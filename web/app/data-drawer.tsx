@@ -29,7 +29,8 @@ export default function DataDrawer({
   open,
   data,
   datasetName,
-  isExpandedInitial,
+  isInitialDataset,
+  isProductionDataset,
   uploadStatus,
   onUpload,
   onReset,
@@ -38,7 +39,8 @@ export default function DataDrawer({
   open: boolean;
   data: ComparisonData;
   datasetName: string;
-  isExpandedInitial: boolean;
+  isInitialDataset: boolean;
+  isProductionDataset: boolean;
   uploadStatus: UploadStatus;
   onUpload: (file: File) => void;
   onReset: () => void;
@@ -56,7 +58,9 @@ export default function DataDrawer({
       episode.id.toLowerCase().includes(normalized) ||
       episode.subset.toLowerCase() === normalized ||
       episode.scene.toLowerCase().includes(normalized) ||
-      episode.lab.toLowerCase().includes(normalized)
+      episode.lab.toLowerCase().includes(normalized) ||
+      episode.source?.toLowerCase().includes(normalized) ||
+      episode.task?.toLowerCase().includes(normalized)
     );
   }, [data.episodes, deferredQuery]);
   const pageCount = Math.max(1, Math.ceil(filteredEpisodes.length / TABLE_PAGE_SIZE));
@@ -92,14 +96,14 @@ export default function DataDrawer({
         </header>
 
         <div className="side-drawer__body">
-          <section className="dataset-current" data-fixture={isExpandedInitial}>
+          <section className="dataset-current" data-fixture={false}>
             <div className="dataset-current__head">
               <span><Database aria-hidden="true" size={17} /> Active dataset</span>
-              <small>{isExpandedInitial ? "Extracted source + scale index" : "Uploaded JSON"}</small>
+              <small>{isProductionDataset ? "Production R2 · Modal" : isInitialDataset ? "Bundled cache" : "Uploaded JSON"}</small>
             </div>
             <strong>{datasetName}</strong>
             <p>{data.task} · {data.episodes.length.toLocaleString()} episodes · {data.quality}</p>
-            {isExpandedInitial ? <p className="dataset-current__provenance">12,000 deterministic summary rows reference 16 extracted 640×480 episode frames. Confidence intervals remain tied to the 16 scored source episodes.</p> : null}
+            {isProductionDataset ? <p className="dataset-current__provenance">Every row is an independent EgoVerse production Zarr episode. A is a 6,000-episode Scale baseline; B is a 6,000-episode Aria/Eva/Scale slice with identical task-family quotas and matched duration. No episode is repeated.</p> : null}
             <div>
               <span>A: {data.subsetA.episodes.toLocaleString()} episodes</span>
               <span>B: {data.subsetB.episodes.toLocaleString()} episodes</span>
@@ -151,7 +155,7 @@ export default function DataDrawer({
               {uploadStatus.state === "error" ? <AlertTriangle aria-hidden="true" size={15} /> : null}
               {uploadStatus.message}
             </p>
-            {!isExpandedInitial ? (
+            {!isInitialDataset ? (
               <button type="button" className="cockpit-button cockpit-button--quiet" onClick={onReset}>
                 <RotateCcw aria-hidden="true" size={16} /> Restore initial dataset
               </button>
@@ -178,7 +182,7 @@ export default function DataDrawer({
                 <input
                   type="search"
                   value={query}
-                  placeholder="Search ID, subset, scene, or lab"
+                  placeholder="Search ID, source, task, scene, or lab"
                   onChange={(event) => {
                     setQuery(event.target.value);
                     setPage(1);
@@ -189,13 +193,13 @@ export default function DataDrawer({
             </div>
             <div className="dataset-table-wrap">
               <table className="dataset-table">
-                <thead><tr><th>Episode</th><th>Set</th><th>Scene</th><th>Visual</th><th>Motion</th></tr></thead>
+                <thead><tr><th>Episode</th><th>Set</th><th>Source / task</th><th>Visual</th><th>Motion</th></tr></thead>
                 <tbody>
                   {visibleEpisodes.map((episode) => (
                     <tr key={episode.id}>
                       <td>{episode.id}</td>
                       <td><span data-subset={episode.subset}>{episode.subset}</span></td>
-                      <td>{episode.scene.replaceAll("_", " ")}</td>
+                      <td>{(episode.source || episode.lab).replaceAll("_", " ")} · {(episode.task || episode.scene).replaceAll("_", " ")}</td>
                       <td>C{episode.visualCluster + 1}</td>
                       <td>{episode.motionCluster >= 0 ? `C${episode.motionCluster + 1}` : "—"}</td>
                     </tr>

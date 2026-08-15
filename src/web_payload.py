@@ -56,12 +56,19 @@ def comparison_payload(
     labeled = result.labeled.sort_values(["subset", "episode_id"]).copy()
     episodes = []
     for row in labeled.itertuples(index=False):
+        preview = getattr(row, "preview_path", "")
+        if not isinstance(preview, str) or not preview:
+            preview = f"/episodes/{row.episode_id}.jpg"
+        elif preview.startswith("artifacts/previews/"):
+            preview = f"/episodes/{preview.rsplit('/', 1)[-1]}"
         episodes.append(
             {
                 "id": str(row.episode_id),
                 "subset": str(row.subset),
                 "lab": str(row.lab),
                 "scene": str(row.scene),
+                "source": str(getattr(row, "source", row.lab)),
+                "task": str(getattr(row, "episode_task", row.task)),
                 "durationSeconds": _number(row.duration_s, 3),
                 "visualCluster": int(row.visual_cluster),
                 "motionCluster": int(row.motion_cluster),
@@ -69,7 +76,7 @@ def comparison_payload(
                 "y": _number(row.y, 6),
                 "novelty": _number(row.novelty, 6),
                 "idleFraction": _number(row.idle_frac, 6),
-                "preview": f"/episodes/{row.episode_id}.jpg",
+                "preview": preview,
             }
         )
 

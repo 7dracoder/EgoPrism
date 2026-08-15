@@ -47,6 +47,8 @@ function isEpisode(value: unknown): value is Episode {
     (episode.subset === "A" || episode.subset === "B") &&
     typeof episode.lab === "string" &&
     typeof episode.scene === "string" &&
+    (episode.source === undefined || typeof episode.source === "string") &&
+    (episode.task === undefined || typeof episode.task === "string") &&
     isFiniteNumber(episode.durationSeconds) &&
     Number.isInteger(episode.visualCluster) &&
     Number.isInteger(episode.motionCluster) &&

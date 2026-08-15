@@ -1,10 +1,11 @@
-import { voiceAnswers, type VoiceTopic } from "../knowledge";
+import { loadServerComparison } from "../../../data/server-comparison";
+import { voiceAnswer, voiceTopics, type VoiceTopic } from "../knowledge";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function isVoiceTopic(value: string): value is VoiceTopic {
-  return Object.hasOwn(voiceAnswers, value);
+  return Object.hasOwn(voiceTopics, value);
 }
 
 export async function GET(request: Request) {
@@ -22,13 +23,14 @@ export async function GET(request: Request) {
   const modelId = process.env.EGOPRISM_ELEVEN_MODEL_ID?.trim() || "eleven_flash_v2_5";
   const endpoint = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`);
   endpoint.searchParams.set("output_format", "mp3_44100_128");
+  const answer = voiceAnswer(topicValue, await loadServerComparison());
 
   try {
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", "xi-api-key": apiKey },
       body: JSON.stringify({
-        text: voiceAnswers[topicValue],
+        text: answer,
         model_id: modelId,
         voice_settings: { stability: 0.55, similarity_boost: 0.75 },
       }),

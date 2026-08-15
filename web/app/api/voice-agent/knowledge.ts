@@ -1,31 +1,58 @@
-export const voiceAnswers = {
-  overview:
-    "EgoPrism compares two task-matched robot dataset slices and measures how broadly each one covers visual contexts and motion patterns. The initial fold-clothes dashboard contains a 12,000-row deterministic interface index, with 6,000 rows per subset, expanded from 16 scored source episodes with clear 640 by 480 frames. It selects Subset B. Voice, captions, metadata counts, and language models never affect the score.",
-  winner:
-    "Subset B wins with a score of 82.8 versus 37.5 for Subset A, a gap of about 45.3 points. Both subsets reach three of four visual clusters, but B reaches all four motion clusters while A occupies only one. The source-episode confidence intervals separate, so the conservative winner rule is satisfied.",
-  score:
-    "EgoPrism standardizes visual and motion features on the pooled A plus B set, clusters each feature family, and computes normalized cluster entropy. The score is 50 times visual entropy plus 50 times motion entropy, producing a value from zero to one hundred. The current comparison uses four clusters.",
-  confidence:
-    "EgoPrism resamples whole episodes 200 times to form 95 percent bootstrap confidence intervals. It declares a winner only when the intervals do not overlap and the score gap is at least two points. Otherwise it reports no clear difference.",
-  evidence:
-    "The fixed cockpit has four evidence panels. For performance, the visual projection shows a deterministic stratified sample of 320 from all 12,000 episode records: outlined squares are A, teal circles are B, and the numeral is its visual cluster. Nearby marks have more similar image fingerprints, but screen distance is not the score. The cluster and score panels use the complete dataset. The episode inspector connects a selected point to its frame and metrics. Uploaded comparison JSON replaces all four panels without using a language model to score anything.",
-  visual:
-    "The visual signal samples eight front-camera frames per episode. It uses stored DINO vectors when available, L2-normalizes and mean-pools them, then compares cluster coverage across the pooled subsets. In the current source comparison, both subsets occupy three of four visual clusters; the larger difference comes from motion coverage.",
-  motion:
-    "The motion signal summarizes hand paths, speed, idle fraction, bimanual coordination, and available head motion. The idle speed threshold is 0.02 meters per second, and poses are rewritten into the current head frame when head pose exists. Subset B covers all four current motion clusters, while Subset A occupies one.",
-  limitations:
-    "A higher EgoPrism score means broader measured cluster coverage; it does not guarantee better robot policy performance. The initial source comparison contains only 16 extracted episodes. The 12,000 dashboard rows repeat their scored summaries for interface-scale testing and are not 12,000 additional recordings, so the source sample remains too small for a broad scientific claim.",
-  fixtures:
-    "The current dashboard is backed by 16 extracted fold-clothes source episodes, eight per subset, with clear 640 by 480 representative frames. It deterministically expands their summaries into 12,000 interface rows so charts, search, and selection can be tested at scale. Those repeated rows are not additional recordings, and confidence intervals remain tied to the 16 scored source episodes.",
-  architecture:
-    "The scoring pipeline lives in Python, while Modal serves a read-only summary API. The Hallmark dashboard is a Next.js application deployed on Vercel from the web directory of the GitHub repository. It uses a deterministic bundled fallback with the same extracted episode frames if Modal is temporarily unavailable, and ElevenLabs speech is called only from server routes.",
-  track:
-    "EgoPrism is the Track 2 quantitative diversity measurement project. Its core claim is that, for a matched task and dataset size, one slice can cover more distinct visual contexts and manipulation patterns than another. It is a data-selection signal, not a downstream policy evaluation.",
-  dashboard:
-    "The Hallmark Cobalt dashboard is a fixed single-screen workbench with no page-level vertical scrolling. Desktop shows four panels at once: visual projection, visual and motion cluster coverage, score anatomy with confidence intervals, and an episode inspector. Smaller screens use four tabs while staying within the viewport. Dataset details and validated JSON upload open from the right, while the continuous ElevenLabs assistant uses a compact answer-only bubble.",
+import type { ComparisonData } from "../../data/types";
+
+export const voiceTopics = {
+  overview: true,
+  winner: true,
+  score: true,
+  confidence: true,
+  evidence: true,
+  visual: true,
+  motion: true,
+  limitations: true,
+  fixtures: true,
+  architecture: true,
+  track: true,
+  dashboard: true,
 } as const;
 
-export type VoiceTopic = keyof typeof voiceAnswers;
+export type VoiceTopic = keyof typeof voiceTopics;
+
+const count = (value: number) => value.toLocaleString("en-US");
+
+export function voiceAnswer(topic: VoiceTopic, data: ComparisonData): string {
+  const total = data.episodes.length;
+  const sources = new Set(data.episodes.map((episode) => episode.source).filter(Boolean)).size;
+  const winner = data.winner === "tie" ? "Neither subset has a clear lead" : `Subset ${data.winner} wins`;
+  const gap = Math.abs(data.subsetB.score - data.subsetA.score);
+
+  const answers: Record<VoiceTopic, string> = {
+    overview:
+      `EgoPrism compares ${count(data.subsetA.episodes)} single-source Scale episodes with ${count(data.subsetB.episodes)} multi-source Aria, Eva, and Scale episodes. The task-family quotas are identical and duration is matched. It measures visual and motion coverage, and ${winner.toLowerCase()}. Voice, captions, metadata labels, and language models never affect the score.`,
+    winner:
+      `${winner}. Subset A scores ${data.subsetA.score.toFixed(1)} and Subset B scores ${data.subsetB.score.toFixed(1)}, a ${gap.toFixed(1)} point gap. EgoPrism only calls a winner when the 95 percent confidence intervals do not overlap and the gap is at least ${data.method.minimumWinnerGap.toFixed(0)} points.`,
+    score:
+      `EgoPrism standardizes pooled visual and motion features, clusters each feature family into ${data.clusterCount} groups, and computes normalized cluster entropy. The score is ${Math.round(data.method.visualWeight * 100)} percent visual entropy plus ${Math.round(data.method.motionWeight * 100)} percent motion entropy, scaled from zero to one hundred.`,
+    confidence:
+      `EgoPrism resamples whole episodes ${data.method.bootstrapSamples} times to form ${Math.round(data.method.confidenceLevel * 100)} percent bootstrap confidence intervals. It declares a winner only when those intervals do not overlap and the score gap is at least ${data.method.minimumWinnerGap.toFixed(0)} points.`,
+    evidence:
+      `The fixed cockpit has four evidence panels. The visual projection shows a deterministic stratified sample of up to 320 from all ${count(total)} episodes; nearby marks have more similar visual fingerprints, but screen distance is not the score. Coverage and score panels use the complete dataset, and the inspector retrieves the selected episode's real 640 by 480 frame from EgoVerse through Modal.`,
+    visual:
+      `The production run samples eight real front-camera frames per episode and builds a normalized color-and-spatial grid fingerprint before pooled clustering. Subset A occupies ${data.subsetA.visualClustersUsed} of ${data.clusterCount} visual clusters and Subset B occupies ${data.subsetB.visualClustersUsed} of ${data.clusterCount}.`,
+    motion:
+      `The motion signal summarizes hand path length, speed, idle fraction, bimanual coordination, and available head motion. The idle threshold is ${data.method.idleSpeedThresholdMps.toFixed(2)} meters per second. Subset A occupies ${data.subsetA.motionClustersUsed} motion clusters and Subset B occupies ${data.subsetB.motionClustersUsed}.`,
+    limitations:
+      `A higher EgoPrism score means broader measured cluster coverage; it does not guarantee better robot policy performance. This run does use ${count(total)} independent production episodes, but its color-and-spatial visual fingerprint is a lightweight screening signal rather than a semantic foundation model embedding.`,
+    fixtures:
+      `The live dashboard uses ${count(total)} independent production Zarr episodes from ${sources || 3} EgoVerse sources. The rows are not repeated or expanded. Subset A is a 6,000-episode Scale baseline; subset B is a 6,000-episode Aria, Eva, and Scale slice. Their five task-family quotas are identical and total duration differs by less than five percent.`,
+    architecture:
+      `Modal inventories and extracts the private EgoVerse R2 data, stores the compact feature cache, serves the scored summary, and retrieves real episode frames on demand. The Hallmark-style Next.js cockpit is deployed on Vercel, and ElevenLabs speech is called only from protected server routes.`,
+    track:
+      `EgoPrism is the Track 2 quantitative diversity measurement project. It compares task-family and duration-matched dataset slices using visual and motion coverage. The result is a data-selection signal, not a downstream policy evaluation.`,
+    dashboard:
+      `The Hallmark Cobalt dashboard is a fixed single-screen workbench. Desktop shows visual projection, cluster coverage, score confidence, and the episode inspector together. Dataset details open from the side, and the continuous ElevenLabs assistant keeps only its answer transcript in the compact bubble until End conversation is pressed.`,
+  };
+  return answers[topic];
+}
 
 const containsAny = (question: string, terms: string[]) =>
   terms.some((term) => question.includes(term));

@@ -94,12 +94,20 @@ def _motion_matrix(frame: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
     present = frame["has_motion"].to_numpy().astype(bool)
     cols = [c for c in MOTION_COLUMNS if c in frame.columns]
     raw = frame[cols].to_numpy(dtype=np.float64)
+    raw = np.where(np.isfinite(raw), raw, np.nan)
     med = np.nanmedian(raw, axis=0)
     med = np.where(np.isfinite(med), med, 0.0)
-    filled = np.where(np.isfinite(raw), raw, med)
     usable_cols = np.isfinite(raw).mean(axis=0) >= 0.5
     if usable_cols.any():
-        filled = filled[:, usable_cols]
+        raw = raw[:, usable_cols]
+        med = med[usable_cols]
+        # Sensor dropouts can leave finite but physically impossible pose jumps.
+        # Winsorize only after pooling A+B so both subsets receive the same
+        # robust transform and a handful of glitches cannot define a cluster.
+        lo = np.nanquantile(raw, 0.005, axis=0)
+        hi = np.nanquantile(raw, 0.995, axis=0)
+        filled = np.where(np.isfinite(raw), raw, med)
+        filled = np.clip(filled, lo, hi)
     else:
         filled = np.zeros((len(frame), 1))
     return filled, present

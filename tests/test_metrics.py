@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.metrics import choose_k, normalized_entropy, score_comparison
+from src.metrics import _motion_matrix, choose_k, normalized_entropy, score_comparison
 
 
 def _subset(
@@ -97,3 +97,22 @@ def test_rejects_mixed_tasks():
     b["task"] = "bag-grocery"
     with pytest.raises(ValueError, match="share one task"):
         score_comparison(pd.concat([a, b], ignore_index=True), n_bootstrap=10)
+
+
+def test_motion_matrix_contains_finite_sensor_glitches():
+    frame = pd.DataFrame(
+        {
+            "has_motion": [True] * 1_000,
+            "left_traj_m": [1.0] * 999 + [1e12],
+            "right_traj_m": [1.0] * 1_000,
+            "ee_speed_median": [0.1] * 1_000,
+            "ee_speed_p90": [0.2] * 1_000,
+            "idle_frac": [0.1] * 1_000,
+            "head_translation_m": [0.2] * 1_000,
+            "head_rotation_rad": [0.3] * 1_000,
+            "bimanual_speed_corr": [0.5] * 1_000,
+        }
+    )
+    matrix, present = _motion_matrix(frame)
+    assert present.all()
+    assert matrix[:, 0].max() < 1e12

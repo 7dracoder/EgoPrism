@@ -1,12 +1,12 @@
 # EgoPrism — End-to-End Build Map
 
 EgoPrism is the Track 2 quantitative-diversity entry: compare two frozen,
-task-matched EgoVerse subsets using visual and motion coverage, then make the
+task-family-matched EgoVerse subsets using visual and motion coverage, then make the
 winner and its evidence easy to inspect.
 
 ## Product contract
 
-- Input: two similar-size, task-matched episode manifests and their zarr data.
+- Input: two equal-size, task-family-matched selections from production Zarr data.
 - Processing: pooled feature normalization, visual and motion clustering,
   normalized entropy, and episode-level bootstrap confidence intervals.
 - Output: a 0–100 score for each subset, a conservative winner decision,
@@ -48,10 +48,8 @@ contract is a fixed, single-viewport evidence cockpit:
   page-level vertical scrolling.
 - Make projection points and episode thumbnails selectable and linked to the same
   active episode.
-- Default to a deterministic 12,000-row interface index—6,000 per subset—
-  expanded from 16 scored source episodes with clear 640×480 preview frames.
-  Preserve source-episode confidence intervals so repeated rows do not create
-  false statistical precision. Accept a
+- Default to the deterministic 12,000-episode production comparison—6,000
+  independent recordings per subset, no repeated IDs. Accept a
   schema-compatible comparison JSON file and immediately redraw every panel in
   the browser.
 - Put the active dataset summary, upload/reset controls, and complete episode
@@ -66,14 +64,18 @@ contract is a fixed, single-viewport evidence cockpit:
 
 ## Build status
 
-- [x] Sixteen extracted fold-clothes source episodes with representative frames.
-- [x] Deterministic 12,000-record web scale corpus with full-data aggregate
+- [x] Production inventory of 22,852 Aria/Eva/Scale Zarr episodes; 22,849 passed
+  real frame and motion extraction, with three invalid episodes documented.
+- [x] Deterministic 12,000-record comparison with 6,000 unique episodes per side,
+  identical five-family task quotas, under-5% duration difference, and no overlap.
+- [x] Full-data aggregate
   charts, a 320-point stratified projection, and a searchable paginated index.
 - [x] Deterministic extraction, feature, clustering, scoring, and bootstrap pipeline.
 - [x] Streamlit reference dashboard and optional local voice briefing.
 - [x] Serializable web payload and regression tests.
 - [x] Modal read-only comparison API backed by the `egoverse-data` volume.
-- [x] Hallmark/Cobalt Next.js dashboard with real episode frames.
+- [x] Hallmark/Cobalt Next.js dashboard wired for real Modal episode frames;
+  public frame serving remains deny-by-default behind an explicit allowlist.
 - [x] Fixed single-viewport four-panel visualization cockpit with no page-level
   scrolling at supported desktop and mobile sizes.
 - [x] Browser-local comparison JSON upload, strict runtime validation, initial-data reset,
@@ -92,9 +94,9 @@ contract is a fixed, single-viewport evidence cockpit:
 
 - `pytest -q` passes the Python pipeline and web-payload tests.
 - `npm run typecheck` and `npm run build` pass under `web/`.
-- Modal `/summary` responds with the 16 scored source episodes and deterministic
-  winner; the web layer expands them to a 12,000-row interface index while
-  retaining the source confidence intervals and preview mappings.
+- Modal `/summary` responds with 12,000 independent production episodes, A and B
+  counts of 6,000, scores 84.63 and 90.79, non-overlapping 95% intervals, and B
+  as the deterministic winner.
 - Vercel `/api/health` reports Modal and ElevenLabs configured without returning
   secret values.
 - Vercel `/api/voice` returns MP3 audio from the fixed result briefing.
@@ -108,8 +110,8 @@ contract is a fixed, single-viewport evidence cockpit:
 
 ## Before submission
 
-1. Confirm the sixteen extracted source episodes are cleared for the submission,
-   and describe 12,000 as interface summary rows rather than independent recordings.
+1. Obtain explicit dataset-owner clearance before enabling public display of
+   production frames; feature extraction and aggregate scoring are already complete.
 2. Record a 60–90 second demo: decision → evidence → episode trace → ask the
    voice analyst why B won.
 3. Explain the pooled transform, score formula, winner rule, and limitation.
