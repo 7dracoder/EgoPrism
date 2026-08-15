@@ -2,46 +2,27 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import {
-  Activity,
-  ArrowDown,
-  ArrowUp,
-  Check,
-  CircleHelp,
-  Database,
-  ExternalLink,
-  Layers3,
-  Mic,
-  Play,
-  Search,
-  X,
-} from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-} from "react";
+import { AlertTriangle, Database, Mic, Upload, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import type { ComparisonData, Episode, Occupancy } from "./data/types";
+import DataDrawer, { type UploadStatus } from "./data-drawer";
+import type { ComparisonData, Episode } from "./data/types";
+import { isComparisonData } from "./data/validate";
+import {
+  ClusterPanel,
+  EpisodesPanel,
+  panelOptions,
+  ProjectionPanel,
+  ScoresPanel,
+  type PanelId,
+} from "./dashboard-panels";
 
 type DashboardProps = { data: ComparisonData };
-type SubsetFilter = "All" | "A" | "B";
-type VoiceState = "idle" | "loading" | "success" | "error";
+type DrawerKind = "data" | "voice" | null;
+type DataOrigin = "initial" | "uploaded";
 
-const percent = (value: number | null) =>
-  value === null ? "—" : `${Math.round(value * 100)}%`;
-
-const commandItems = [
-  { label: "View decision", detail: "Scores and confidence intervals", href: "#decision" },
-  { label: "Inspect evidence", detail: "Visual projection and cluster occupancy", href: "#evidence" },
-  { label: "Ask EgoPrism", detail: "Question the result with the voice analyst", href: "#voice-agent" },
-  { label: "Browse episodes", detail: "Filter novelty-ranked examples", href: "#episodes" },
-  { label: "Read method", detail: "Formula, thresholds, and limitations", href: "#method" },
-];
+const FIXTURE_ID_RE = /^fold_[ab]_\d{3}$/;
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 const VoiceAgent = dynamic(() => import("./voice-agent"), {
   ssr: false,
@@ -53,584 +34,227 @@ const VoiceAgent = dynamic(() => import("./voice-agent"), {
   ),
 });
 
-function occupancyCount(items: Occupancy[], cluster: number) {
-  return items.find((item) => item.cluster === cluster)?.count ?? 0;
+function isFixtureData(data: ComparisonData) {
+  return data.episodes.length > 0 && data.episodes.every((episode) => FIXTURE_ID_RE.test(episode.id));
 }
 
-function ScatterPlot({
-  episodes,
-  selected,
-  onSelect,
-}: {
-  episodes: Episode[];
-  selected: string;
-  onSelect: (episode: Episode) => void;
-}) {
-  const positioned = useMemo(() => {
-    const xs = episodes.map((episode) => episode.x);
-    const ys = episodes.map((episode) => episode.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    const xRange = maxX - minX || 1;
-    const yRange = maxY - minY || 1;
-    return episodes.map((episode) => ({
-      episode,
-      left: 5 + ((episode.x - minX) / xRange) * 90,
-      top: 6 + (1 - (episode.y - minY) / yRange) * 88,
-    }));
-  }, [episodes]);
+function firstEpisode(data: ComparisonData) {
+  return data.episodes.toSorted((a, b) => b.novelty - a.novelty)[0]!;
+}
 
+function CompactScore({
+  label,
+  score,
+  active,
+}: {
+  label: string;
+  score: number;
+  active: boolean;
+}) {
   return (
-    <div
-      className="scatter"
-      role="group"
-      aria-label="Two-dimensional visual embedding projection. Nearby points are more visually similar; position is not the diversity score."
-    >
-      <div className="scatter__axis scatter__axis--x">projection axis 1</div>
-      <div className="scatter__axis scatter__axis--y">projection axis 2</div>
-      {positioned.map(({ episode, left, top }) => (
-        <button
-          type="button"
-          key={episode.id}
-          className="scatter__hit"
-          data-subset={episode.subset}
-          data-selected={selected === episode.id}
-          style={{ "--point-x": `${left}%`, "--point-y": `${top}%` } as CSSProperties}
-          aria-label={`${episode.id}, subset ${episode.subset}, visual cluster ${episode.visualCluster + 1}`}
-          onClick={() => onSelect(episode)}
-        >
-          <span>{episode.visualCluster + 1}</span>
-        </button>
-      ))}
+    <div className="compact-score" data-active={active}>
+      <span>{label}</span>
+      <strong>{score.toFixed(1)}</strong>
+      <i><span style={{ width: `${Math.max(0, Math.min(100, score))}%` }} /></i>
     </div>
   );
 }
 
 export default function Dashboard({ data }: DashboardProps) {
-  const [subset, setSubset] = useState<SubsetFilter>("All");
-  const [cluster, setCluster] = useState("All");
-  const [lab, setLab] = useState("All");
-  const initialEpisode = [...data.episodes].sort((a, b) => b.novelty - a.novelty)[0];
-  const [selectedEpisodeId, setSelectedEpisodeId] = useState(initialEpisode?.id ?? "");
-  const [voiceState, setVoiceState] = useState<VoiceState>("idle");
-  const [voiceMessage, setVoiceMessage] = useState("");
-  const [audioUrl, setAudioUrl] = useState("");
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const commandRef = useRef<HTMLDialogElement>(null);
-  const commandInputRef = useRef<HTMLInputElement>(null);
-  const [commandOpen, setCommandOpen] = useState(false);
-  const [commandQuery, setCommandQuery] = useState("");
-  const [commandIndex, setCommandIndex] = useState(0);
+  const initialFixture = isFixtureData(data);
+  const [activeData, setActiveData] = useState(data);
+  const [dataOrigin, setDataOrigin] = useState<DataOrigin>("initial");
+  const [datasetName, setDatasetName] = useState(
+    initialFixture ? "Bundled fold-clothes fixture" : "Modal comparison",
+  );
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState(firstEpisode(data).id);
+  const [drawer, setDrawer] = useState<DrawerKind>(null);
+  const [mobilePanel, setMobilePanel] = useState<PanelId>("projection");
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
+    state: "idle",
+    message: "Expected: the JSON payload produced by EgoPrism’s comparison pipeline.",
+  });
 
   const selectedEpisode =
-    data.episodes.find((episode) => episode.id === selectedEpisodeId) ?? initialEpisode;
-  const labs = useMemo(
-    () => Array.from(new Set(data.episodes.map((episode) => episode.lab))).sort(),
-    [data.episodes],
-  );
-  const visibleCommands = useMemo(() => {
-    const query = commandQuery.trim().toLowerCase();
-    return query
-      ? commandItems.filter((item) => `${item.label} ${item.detail}`.toLowerCase().includes(query))
-      : commandItems;
-  }, [commandQuery]);
-
-  const filteredEpisodes = useMemo(
-    () =>
-      data.episodes
-        .filter((episode) => subset === "All" || episode.subset === subset)
-        .filter((episode) => cluster === "All" || episode.visualCluster === Number(cluster))
-        .filter((episode) => lab === "All" || episode.lab === lab)
-        .sort((a, b) => b.novelty - a.novelty),
-    [cluster, data.episodes, lab, subset],
-  );
-
-  const openCommand = useCallback(() => {
-    const dialog = commandRef.current;
-    if (!dialog || dialog.open) return;
-    dialog.showModal();
-    setCommandOpen(true);
-    setCommandQuery("");
-    setCommandIndex(0);
-    requestAnimationFrame(() => commandInputRef.current?.focus());
-  }, []);
-
-  const closeCommand = useCallback(() => {
-    commandRef.current?.close();
-    setCommandOpen(false);
-  }, []);
+    activeData.episodes.find((episode) => episode.id === selectedEpisodeId) ?? firstEpisode(activeData);
+  const isDemoFixture = dataOrigin === "initial" && isFixtureData(activeData);
+  const sourceLabel = dataOrigin === "uploaded"
+    ? "Uploaded JSON"
+    : activeData.source === "modal"
+      ? "Modal live"
+      : "Bundled cache";
+  const winnerScore = activeData.winner === "A"
+    ? activeData.subsetA.score
+    : activeData.winner === "B"
+      ? activeData.subsetB.score
+      : Math.max(activeData.subsetA.score, activeData.subsetB.score);
 
   useEffect(() => {
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        commandOpen ? closeCommand() : openCommand();
-      }
+    if (!drawer) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDrawer(null);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [closeCommand, commandOpen, openCommand]);
+  }, [drawer]);
 
-  useEffect(() => {
-    setCommandIndex(0);
-  }, [commandQuery]);
+  const selectEpisode = (episode: Episode) => setSelectedEpisodeId(episode.id);
 
-  useEffect(() => {
-    if (!audioUrl) return;
-    audioRef.current?.play().catch(() => undefined);
-    return () => URL.revokeObjectURL(audioUrl);
-  }, [audioUrl]);
-
-  const runCommand = (href: string) => {
-    closeCommand();
-    requestAnimationFrame(() => document.querySelector(href)?.scrollIntoView({ behavior: "smooth" }));
-  };
-
-  const onCommandKey = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setCommandIndex((index) => Math.min(index + 1, visibleCommands.length - 1));
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setCommandIndex((index) => Math.max(index - 1, 0));
-    } else if (event.key === "Enter" && visibleCommands[commandIndex]) {
-      event.preventDefault();
-      runCommand(visibleCommands[commandIndex].href);
+  const handleUpload = async (file: File) => {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setUploadStatus({ state: "error", message: "That file is larger than 25 MB. Upload the compact comparison JSON, not raw frames or Zarr." });
+      return;
     }
-  };
 
-  const playBriefing = async () => {
-    setVoiceState("loading");
-    setVoiceMessage("Generating the fixed result briefing…");
+    setUploadStatus({ state: "loading", message: `Validating ${file.name}…` });
     try {
-      const response = await fetch("/api/voice");
-      if (!response.ok) {
-        const detail = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(detail?.error || "The voice briefing could not be generated.");
+      const parsed: unknown = JSON.parse(await file.text());
+      if (!isComparisonData(parsed)) {
+        throw new Error("The file is JSON, but it does not match the EgoPrism comparison schema.");
       }
-      const nextAudioUrl = URL.createObjectURL(await response.blob());
-      setAudioUrl(nextAudioUrl);
-      setVoiceState("success");
-      setVoiceMessage("Briefing ready. Playback started.");
+
+      setActiveData(parsed);
+      setDataOrigin("uploaded");
+      setDatasetName(file.name);
+      setSelectedEpisodeId(firstEpisode(parsed).id);
+      setMobilePanel("projection");
+      setUploadStatus({
+        state: "success",
+        message: `${file.name} is active. All four visualizations now use its ${parsed.episodes.length} episodes.`,
+      });
     } catch (error) {
-      setVoiceState("error");
-      setVoiceMessage(
-        error instanceof Error
-          ? error.message
-          : "The voice briefing failed. Check the server configuration and try again.",
-      );
+      setUploadStatus({
+        state: "error",
+        message: error instanceof Error ? error.message : "The comparison file could not be read.",
+      });
     }
   };
 
-  const delta = data.subsetB.score - data.subsetA.score;
-  const winningSubset = data.winner === "tie" ? null : data.winner === "A" ? data.subsetA : data.subsetB;
-  const maxOccupancy = Math.max(
-    ...data.subsetA.visualOccupancy.map((item) => item.count),
-    ...data.subsetB.visualOccupancy.map((item) => item.count),
-    1,
-  );
-  const sourceLabel = data.source === "modal" ? "Modal live" : "Bundled cache";
-  const isDemoFixture =
-    data.episodes.length > 0 &&
-    data.episodes.every((episode) => /^fold_[ab]_\d{3}$/.test(episode.id));
-  const voiceLabel =
-    voiceState === "loading"
-      ? "Generating…"
-      : voiceState === "success"
-        ? "Play again"
-        : voiceState === "error"
-          ? "Retry briefing"
-          : "Play briefing";
+  const resetDemo = () => {
+    setActiveData(data);
+    setDataOrigin("initial");
+    setDatasetName(initialFixture ? "Bundled fold-clothes fixture" : "Modal comparison");
+    setSelectedEpisodeId(firstEpisode(data).id);
+    setMobilePanel("projection");
+    setUploadStatus({ state: "idle", message: "Bundled comparison restored." });
+  };
 
   return (
-    <>
-      <header className="topbar">
-        <a className="wordmark" href="#decision" aria-label="EgoPrism home">
-          <span className="wordmark__mark" aria-hidden="true">
-            <Image
-              src="/egoprism-mark.png"
-              alt=""
-              width={64}
-              height={64}
-              sizes="2.5rem"
-              loading="eager"
-            />
-          </span>
-          <span>EgoPrism</span>
-        </a>
-        <button type="button" className="search-pill" onClick={openCommand} aria-label="Open command palette">
-          <Search aria-hidden="true" size={16} />
-          <span className="search-pill__text">Jump to evidence…</span>
-          <kbd>⌘ K</kbd>
-        </button>
-        <nav className="topbar__actions" aria-label="Primary navigation">
-          <a href="#evidence">Evidence</a>
-          <a href="#episodes">Episodes</a>
-          <a className="button button--primary" href="#voice-agent" aria-label="Ask EgoPrism by voice">
-            <Mic aria-hidden="true" size={16} />
-            <span>Ask AI</span>
-          </a>
+    <div className="cockpit-shell">
+      <header className="cockpit-topbar">
+        <div className="cockpit-brand">
+          <Image src="/egoprism-mark.png" alt="" width={48} height={48} sizes="2.25rem" loading="eager" />
+          <div><strong>EgoPrism</strong><span>Quantitative diversity workbench</span></div>
+        </div>
+
+        <div className="cockpit-context" aria-label="Current comparison">
+          <span>{activeData.task.replaceAll("_", " ")}</span>
+          <span>{activeData.episodes.length} episodes</span>
+          <span>{activeData.quality}</span>
+          <span data-fixture={isDemoFixture}>{sourceLabel}</span>
+        </div>
+
+        <nav className="cockpit-actions" aria-label="Dashboard actions">
+          <button type="button" className="cockpit-button cockpit-button--quiet" onClick={() => setDrawer("data")}>
+            <Database aria-hidden="true" size={17} />
+            <span>Dataset</span>
+          </button>
+          <button type="button" className="cockpit-button cockpit-button--primary" onClick={() => setDrawer("voice")}>
+            <Mic aria-hidden="true" size={17} />
+            <span>Voice AI</span>
+          </button>
         </nav>
       </header>
 
-      <main className="dashboard-shell" id="decision">
-        <div className="run-strip" aria-label="Comparison status">
-          <span><Database aria-hidden="true" size={15} /> {sourceLabel}</span>
-          <span>{data.task}</span>
-          <span>{data.episodes.length} episodes</span>
-          <span>{data.quality}</span>
-          <span className="run-strip__scope" data-fixture={isDemoFixture}>
-            {isDemoFixture ? "Synthetic demo" : "External slice"}
-          </span>
-        </div>
+      <main className="cockpit-main">
+        <section className="decision-strip" aria-label="Diversity decision">
+          <div className="decision-strip__result">
+            <span>Coverage decision</span>
+            <strong>{activeData.winner === "tie" ? "No clear difference" : `Subset ${activeData.winner} wins`}</strong>
+            <p>{activeData.statement}</p>
+          </div>
+          <div className="decision-strip__lead">
+            <span>Leading score</span>
+            <strong>{winnerScore.toFixed(1)}</strong>
+            <small>out of 100</small>
+          </div>
+          <div className="decision-strip__scores">
+            <CompactScore label="Subset A" score={activeData.subsetA.score} active={activeData.winner === "A"} />
+            <CompactScore label="Subset B" score={activeData.subsetB.score} active={activeData.winner === "B"} />
+          </div>
+          <aside className="decision-strip__validity" data-fixture={isDemoFixture}>
+            <AlertTriangle aria-hidden="true" size={17} />
+            <div>
+              <strong>{isDemoFixture ? "Demo-valid, not research-valid" : "User-provided comparison"}</strong>
+              <span>{isDemoFixture ? "Synthetic fixtures · inspect methodology" : "Verify provenance before making a claim"}</span>
+            </div>
+            <button type="button" onClick={() => setDrawer("data")}>View data</button>
+          </aside>
+        </section>
 
-        <section className="hero reveal">
-          <div className="hero__copy">
-            <h1>Measure coverage. Pick the broader slice.</h1>
-            <p>
-              Compare frozen, task-matched EgoVerse subsets using image and motion clusters—not
-              captions, metadata counts, or an LLM judge.
-            </p>
-            <div className="hero__actions">
+        <nav className="panel-tabs" aria-label="Visualization panels">
+          {panelOptions.map((option) => {
+            const Icon = option.icon;
+            return (
               <button
                 type="button"
-                className="button button--primary"
-                data-state={voiceState}
-                disabled={voiceState === "loading"}
-                onClick={playBriefing}
+                key={option.id}
+                data-active={mobilePanel === option.id}
+                aria-pressed={mobilePanel === option.id}
+                onClick={() => setMobilePanel(option.id)}
               >
-                {voiceState === "loading" ? (
-                  <Activity className="spinner" aria-hidden="true" size={17} />
-                ) : (
-                  <Play aria-hidden="true" size={17} />
-                )}
-                <span>{voiceLabel}</span>
+                <Icon aria-hidden="true" size={15} />
+                <span>{option.label}</span>
               </button>
-              <a className="text-link" href="#evidence">Inspect the evidence <ArrowDown aria-hidden="true" size={16} /></a>
-            </div>
-            <div className="voice-status" data-state={voiceState} aria-live="polite">
-              {voiceMessage && (
-                <span>{voiceState === "success" && <Check aria-hidden="true" size={16} />} {voiceMessage}</span>
-              )}
-              {audioUrl && <audio ref={audioRef} controls src={audioUrl} aria-label="EgoPrism result briefing" />}
-            </div>
-          </div>
+            );
+          })}
+        </nav>
 
-          <div className="decision-panel" aria-label="Diversity decision">
-            <div className="decision-panel__meta">
-              <span>Decision</span>
-              <span>95% bootstrap CI</span>
-            </div>
-            {winningSubset ? (
-              <>
-                <div className="decision-panel__winner">Subset {data.winner}</div>
-                <div className="decision-panel__score">{winningSubset.score.toFixed(1)}</div>
-                <p>{data.statement}</p>
-                <div className="decision-panel__delta">
-                  <span>Score gap</span>
-                  <strong>{delta > 0 ? "+" : ""}{delta.toFixed(1)} points</strong>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="decision-panel__winner">No clear difference</div>
-                <p>{data.statement}</p>
-              </>
-            )}
-          </div>
+        <section className="viz-grid" data-active-panel={mobilePanel} aria-label="Four-part diversity analysis">
+          <ProjectionPanel data={activeData} selectedEpisode={selectedEpisode} onSelect={selectEpisode} />
+          <ClusterPanel data={activeData} />
+          <ScoresPanel data={activeData} />
+          <EpisodesPanel data={activeData} selectedEpisode={selectedEpisode} onSelect={selectEpisode} />
         </section>
 
-        <section className="comparison-sheet" aria-label="Subset comparison">
-          {[data.subsetA, data.subsetB].map((item) => (
-            <article className="comparison-row" key={item.name} data-subset={item.name}>
-              <div className="comparison-row__name">
-                <span>Subset {item.name}</span>
-                <small>{item.scenes} {item.scenes === 1 ? "scene" : "scenes"} · {item.labs} {item.labs === 1 ? "lab" : "labs"}</small>
-              </div>
-              <div className="comparison-row__score">{item.score.toFixed(1)}</div>
-              <div className="comparison-row__bar" aria-label={`Subset ${item.name} score ${item.score.toFixed(1)} out of 100`}>
-                <span style={{ "--score-width": `${item.score}%` } as CSSProperties} />
-              </div>
-              <div className="comparison-row__ci">CI {item.ci[0].toFixed(1)}–{item.ci[1].toFixed(1)}</div>
-              <div className="comparison-row__entropy">
-                <span>visual {percent(item.visualEntropy)}</span>
-                <span>motion {percent(item.motionEntropy)}</span>
-              </div>
-            </article>
-          ))}
-        </section>
-
-        <p className="qualification">
-          Higher means broader cluster coverage. It does not guarantee better downstream policy performance.
-        </p>
-
-        <aside className="data-provenance" data-fixture={isDemoFixture} aria-label="Dataset validity">
-          <div className="data-provenance__label">Dataset validity</div>
-          <div>
-            <strong>
-              {isDemoFixture
-                ? "Valid for an end-to-end product demo—not for a real EgoVerse research claim."
-                : "External data slice detected. Verify its license, provenance, and manifest before claiming a result."}
-            </strong>
-            <p>
-              {isDemoFixture
-                ? "These 32 episodes are deterministic, schema-faithful synthetic fixtures. They exercise validation, features, scoring, uncertainty, plots, and voice; an approved real slice must replace them for scientific evidence."
-                : "EgoPrism validates schema and comparison rules, but data approval remains the dataset owner’s responsibility."}
-            </p>
-          </div>
-          <a href="#method">Read the method</a>
-        </aside>
-
-        <section className="evidence-band" id="evidence">
-          <div className="evidence-band__head">
-            <div>
-              <h2>See where the coverage comes from.</h2>
-              <p>Read the visual map and occupancy bars together—the map explains similarity; the bars explain coverage.</p>
-            </div>
-            <div className="legend" aria-label="Plot legend">
-              <span><i data-subset="A" /> A · square</span>
-              <span><i data-subset="B" /> B · circle</span>
-            </div>
-          </div>
-
-          <ol className="reading-sequence" aria-label="How to read the evidence">
-            <li><span>01</span><div><strong>One mark = one episode</strong><small>Shape shows subset; the numeral is its visual cluster.</small></div></li>
-            <li><span>02</span><div><strong>Near means visually similar</strong><small>The 2D projection is a map for inspection, not the score itself.</small></div></li>
-            <li><span>03</span><div><strong>Spread across bars means coverage</strong><small>More even occupancy across clusters produces higher visual entropy.</small></div></li>
-          </ol>
-
-          <div className="evidence-grid">
-            <article className="plot-panel">
-              <div className="plot-panel__title">
-                <span>Visual projection</span>
-                <small>PCA → UMAP · click a point</small>
-              </div>
-              <p className="plot-panel__guide">
-                Episodes close together have similar image fingerprints. Axis values have no standalone meaning, and screen distance does not enter the score.
-              </p>
-              <ScatterPlot
-                episodes={data.episodes}
-                selected={selectedEpisode?.id ?? ""}
-                onSelect={(episode) => setSelectedEpisodeId(episode.id)}
-              />
-              {selectedEpisode && (
-                <div className="selected-readout" aria-live="polite">
-                  <span>Selected</span>
-                  <strong>{selectedEpisode.id}</strong>
-                  <span>subset {selectedEpisode.subset}</span>
-                  <span>cluster {selectedEpisode.visualCluster + 1}</span>
-                  <span>{selectedEpisode.scene.replace("_", " ")}</span>
-                  <span>novelty {selectedEpisode.novelty.toFixed(2)}</span>
-                </div>
-              )}
-            </article>
-
-            <article className="occupancy-panel">
-              <div className="plot-panel__title">
-                <span>Visual cluster occupancy</span>
-                <small>paired bars A / B · count at right</small>
-              </div>
-              <p className="plot-panel__guide">
-                Each row is one cluster. The upper muted bar is A; the lower teal bar is B. Longer means more episodes in that cluster.
-              </p>
-              <div className="occupancy-list">
-                {Array.from({ length: data.clusterCount }, (_, clusterIndex) => {
-                  const countA = occupancyCount(data.subsetA.visualOccupancy, clusterIndex);
-                  const countB = occupancyCount(data.subsetB.visualOccupancy, clusterIndex);
-                  return (
-                    <div
-                      className="occupancy-row"
-                      key={clusterIndex}
-                      role="img"
-                      aria-label={`Cluster ${clusterIndex + 1}: ${countA} Subset A episodes and ${countB} Subset B episodes`}
-                    >
-                      <span className="occupancy-row__label">C{clusterIndex + 1}</span>
-                      <div className="occupancy-row__tracks">
-                        <div className="track" data-subset="A"><span style={{ "--bar-width": `${(countA / maxOccupancy) * 100}%` } as CSSProperties} /></div>
-                        <div className="track" data-subset="B"><span style={{ "--bar-width": `${(countB / maxOccupancy) * 100}%` } as CSSProperties} /></div>
-                      </div>
-                      <span className="occupancy-row__count">{countA} / {countB}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="coverage-readout">
-                <div><span>A clusters</span><strong>{data.subsetA.visualClustersUsed}/{data.clusterCount}</strong></div>
-                <div><span>B clusters</span><strong>{data.subsetB.visualClustersUsed}/{data.clusterCount}</strong></div>
-                <div><span>Median idle A</span><strong>{percent(data.subsetA.medianIdleFraction)}</strong></div>
-                <div><span>Median idle B</span><strong>{percent(data.subsetB.medianIdleFraction)}</strong></div>
-              </div>
-              <div className="coverage-conclusion">
-                <span>Readout</span>
-                <p>
-                  <strong>B reaches {data.subsetB.visualClustersUsed}/{data.clusterCount} visual clusters.</strong>{" "}
-                  A reaches {data.subsetA.visualClustersUsed}/{data.clusterCount}; that concentration is why its visual coverage is lower.
-                </p>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section className="method-section" id="method">
-          <div className="section-head">
-            <h2>The score stays inspectable.</h2>
-            <p>One pooled transform, one documented formula, and episode-level evidence behind every point.</p>
-          </div>
-          <div className="method-grid">
-            <dl className="spec-sheet">
-              <div><dt>Visual signal</dt><dd>8 sampled frames · stored DINO vectors</dd><dd>{Math.round(data.method.visualWeight * 100)}% weight</dd></div>
-              <div><dt>Motion signal</dt><dd>Hand paths · speed · idle · head pose</dd><dd>{Math.round(data.method.motionWeight * 100)}% weight</dd></div>
-              <div><dt>Coverage</dt><dd>Normalized cluster entropy</dd><dd>K = {data.clusterCount}</dd></div>
-              <div><dt>Uncertainty</dt><dd>{data.method.bootstrapSamples} episode bootstraps</dd><dd>{Math.round(data.method.confidenceLevel * 100)}% CI</dd></div>
-              <div><dt>Winner rule</dt><dd>Intervals separate</dd><dd>gap ≥ {data.method.minimumWinnerGap.toFixed(0)} pts</dd></div>
-            </dl>
-            <aside className="method-note">
-              <CircleHelp aria-hidden="true" size={21} />
-              <h3>What the score does not claim</h3>
-              <p>A broader slice can expose a model to more contexts and motion styles. It is still not a substitute for downstream policy evaluation.</p>
-              <details>
-                <summary>Read the exact formula</summary>
-                <code>score = 50 × H(visual clusters) + 50 × H(motion clusters)</code>
-              </details>
-            </aside>
-          </div>
-        </section>
-
-        <VoiceAgent />
-
-        <section className="episodes-section" id="episodes">
-          <div className="section-head section-head--episodes">
-            <div>
-              <h2>Trace the result back to episodes.</h2>
-              <p>Examples are ranked by distance from their cluster centre, then filtered without changing the score.</p>
-            </div>
-            <span className="result-count" aria-live="polite">{filteredEpisodes.length} matches</span>
-          </div>
-
-          <div className="filters" aria-label="Episode filters">
-            <fieldset className="segmented-filter">
-              <legend>Subset</legend>
-              <div>
-                {(["All", "A", "B"] as const).map((option) => (
-                  <button
-                    type="button"
-                    key={option}
-                    data-active={subset === option}
-                    aria-pressed={subset === option}
-                    onClick={() => setSubset(option)}
-                  >
-                    {option === "All" ? "Both" : `Subset ${option}`}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <label className="select-filter">
-              <span>Visual cluster</span>
-              <select value={cluster} onChange={(event) => setCluster(event.target.value)}>
-                <option value="All">All clusters</option>
-                {Array.from({ length: data.clusterCount }, (_, index) => (
-                  <option value={index} key={index}>Cluster {index + 1}</option>
-                ))}
-              </select>
-            </label>
-            <label className="select-filter">
-              <span>Lab</span>
-              <select value={lab} onChange={(event) => setLab(event.target.value)}>
-                <option value="All">All labs</option>
-                {labs.map((option) => <option value={option} key={option}>{option.replace("_", " ")}</option>)}
-              </select>
-            </label>
-          </div>
-
-          {filteredEpisodes.length ? (
-            <div className="episode-grid">
-              {filteredEpisodes.slice(0, 12).map((episode) => (
-                <article className="episode-card" key={episode.id} data-subset={episode.subset}>
-                  <figure>
-                    <Image
-                      src={episode.preview}
-                      alt={`Representative frame from ${episode.id}`}
-                      width={640}
-                      height={480}
-                      sizes="(min-width: 64rem) 30vw, (min-width: 40rem) 48vw, 100vw"
-                    />
-                    <figcaption>Subset {episode.subset}</figcaption>
-                  </figure>
-                  <div className="episode-card__body">
-                    <div><strong>{episode.id}</strong><span>{episode.scene.replace("_", " ")} · {episode.lab.replace("_", " ")}</span></div>
-                    <dl>
-                      <div><dt>cluster</dt><dd>{episode.visualCluster + 1}</dd></div>
-                      <div><dt>novelty</dt><dd>{episode.novelty.toFixed(2)}</dd></div>
-                      <div><dt>idle</dt><dd>{percent(episode.idleFraction)}</dd></div>
-                    </dl>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <Layers3 aria-hidden="true" size={26} />
-              <h3>No episodes match these filters.</h3>
-              <p>Reset the subset, cluster, or lab filter to restore the evidence set.</p>
-              <button type="button" className="button button--secondary" onClick={() => { setSubset("All"); setCluster("All"); setLab("All"); }}>
-                Reset filters
-              </button>
-            </div>
-          )}
-        </section>
+        <footer className="cockpit-footer">
+          <span>Near = visually similar · spread = broader coverage · numeral = cluster</span>
+          <span>score = {Math.round(activeData.method.visualWeight * 100)}% visual + {Math.round(activeData.method.motionWeight * 100)}% motion</span>
+          <span>Uploads never use an LLM to score data</span>
+        </footer>
       </main>
 
-      <footer className="footer-line">
-        <span>EgoPrism</span>
-        <span>Track 2 · quantitative diversity</span>
-        <a href="https://github.com/Nutlope/hallmark" target="_blank" rel="noreferrer">Hallmark system <ExternalLink aria-hidden="true" size={14} /></a>
-      </footer>
+      <DataDrawer
+        open={drawer === "data"}
+        data={activeData}
+        datasetName={datasetName}
+        isDemoFixture={isDemoFixture}
+        uploadStatus={uploadStatus}
+        onUpload={(file) => void handleUpload(file)}
+        onReset={resetDemo}
+        onClose={() => setDrawer(null)}
+      />
 
-      <dialog
-        ref={commandRef}
-        className="command-dialog"
-        onCancel={() => setCommandOpen(false)}
-        onClick={(event) => { if (event.currentTarget === event.target) closeCommand(); }}
-      >
-        <div className="command-dialog__panel">
-          <div className="command-search">
-            <Search aria-hidden="true" size={19} />
-            <label htmlFor="command-query">Find a dashboard section</label>
-            <input
-              ref={commandInputRef}
-              id="command-query"
-              value={commandQuery}
-              onChange={(event) => setCommandQuery(event.target.value)}
-              onKeyDown={onCommandKey}
-              placeholder="Evidence, episodes, method…"
-              autoComplete="off"
-            />
-            <button type="button" onClick={closeCommand} aria-label="Close command palette"><X aria-hidden="true" size={18} /></button>
-          </div>
-          <div className="command-results" role="listbox" aria-label="Dashboard sections">
-            {visibleCommands.map((item, index) => (
-              <button
-                type="button"
-                role="option"
-                aria-selected={commandIndex === index}
-                data-active={commandIndex === index}
-                key={item.href}
-                onMouseEnter={() => setCommandIndex(index)}
-                onClick={() => runCommand(item.href)}
-              >
-                <span><strong>{item.label}</strong><small>{item.detail}</small></span>
-                <span>↵</span>
-              </button>
-            ))}
-          </div>
-          <div className="command-footer">
-            <span><kbd><ArrowUp aria-hidden="true" size={12} /></kbd><kbd><ArrowDown aria-hidden="true" size={12} /></kbd> navigate</span>
-            <span><kbd>esc</kbd> close</span>
-          </div>
+      {drawer === "voice" ? (
+        <div className="drawer-layer">
+          <button type="button" className="drawer-scrim" onClick={() => setDrawer(null)} aria-label="Close voice assistant" />
+          <aside className="side-drawer side-drawer--voice" role="dialog" aria-modal="true" aria-label="EgoPrism voice analyst">
+            <header className="side-drawer__head">
+              <div><span>ElevenLabs</span><h2>Voice analyst</h2></div>
+              <button type="button" onClick={() => setDrawer(null)} aria-label="Close voice assistant"><X aria-hidden="true" size={20} /></button>
+            </header>
+            <div className="side-drawer__body">
+              {dataOrigin === "uploaded" ? (
+                <div className="voice-context-note">
+                  <Upload aria-hidden="true" size={16} />
+                  <span>Method answers remain valid. Numeric voice answers currently describe the shipped demo; use the four panels for uploaded results.</span>
+                </div>
+              ) : null}
+              <VoiceAgent />
+            </div>
+          </aside>
         </div>
-      </dialog>
-    </>
+      ) : null}
+    </div>
   );
 }

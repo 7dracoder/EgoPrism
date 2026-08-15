@@ -1,0 +1,166 @@
+"use client";
+
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Database,
+  FileJson,
+  RotateCcw,
+  ShieldCheck,
+  Upload,
+  X,
+} from "lucide-react";
+import { useRef, useState, type DragEvent } from "react";
+
+import type { ComparisonData } from "./data/types";
+
+export type UploadStatus =
+  | { state: "idle"; message: string }
+  | { state: "loading"; message: string }
+  | { state: "success"; message: string }
+  | { state: "error"; message: string };
+
+export default function DataDrawer({
+  open,
+  data,
+  datasetName,
+  isDemoFixture,
+  uploadStatus,
+  onUpload,
+  onReset,
+  onClose,
+}: {
+  open: boolean;
+  data: ComparisonData;
+  datasetName: string;
+  isDemoFixture: boolean;
+  uploadStatus: UploadStatus;
+  onUpload: (file: File) => void;
+  onReset: () => void;
+  onClose: () => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+
+  if (!open) return null;
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragging(false);
+    const file = event.dataTransfer.files[0];
+    if (file) onUpload(file);
+  };
+
+  return (
+    <div className="drawer-layer">
+      <button type="button" className="drawer-scrim" onClick={onClose} aria-label="Close dataset drawer" />
+      <aside className="side-drawer side-drawer--data" role="dialog" aria-modal="true" aria-labelledby="data-drawer-title">
+        <header className="side-drawer__head">
+          <div>
+            <span>Data workspace</span>
+            <h2 id="data-drawer-title">View or replace the dataset</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close dataset drawer"><X aria-hidden="true" size={20} /></button>
+        </header>
+
+        <div className="side-drawer__body">
+          <section className="dataset-current" data-fixture={isDemoFixture}>
+            <div className="dataset-current__head">
+              <span><Database aria-hidden="true" size={17} /> Active dataset</span>
+              <small>{isDemoFixture ? "Synthetic demo" : "Uploaded JSON"}</small>
+            </div>
+            <strong>{datasetName}</strong>
+            <p>{data.task} · {data.episodes.length} episodes · {data.quality}</p>
+            <div>
+              <span>A: {data.subsetA.episodes} episodes</span>
+              <span>B: {data.subsetB.episodes} episodes</span>
+              <span>K = {data.clusterCount}</span>
+              <span>{data.method.bootstrapSamples} bootstraps</span>
+            </div>
+          </section>
+
+          <section className="dataset-upload" aria-labelledby="upload-title">
+            <div className="drawer-section-title">
+              <span>Input data</span>
+              <h3 id="upload-title">Upload an EgoPrism comparison JSON</h3>
+              <p>The uploaded file is validated and stays in this browser tab. It immediately replaces the demo across all four visualizations.</p>
+            </div>
+            <div
+              className="upload-dropzone"
+              data-dragging={dragging}
+              data-state={uploadStatus.state}
+              onDragEnter={(event) => { event.preventDefault(); setDragging(true); }}
+              onDragOver={(event) => event.preventDefault()}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+            >
+              <FileJson aria-hidden="true" size={28} />
+              <strong>Drop comparison JSON here</strong>
+              <span>or choose a file · maximum 25 MB</span>
+              <button
+                type="button"
+                className="cockpit-button cockpit-button--primary"
+                disabled={uploadStatus.state === "loading"}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload aria-hidden="true" size={16} />
+                {uploadStatus.state === "loading" ? "Validating…" : "Choose JSON"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json,.json"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) onUpload(file);
+                  event.target.value = "";
+                }}
+              />
+            </div>
+            <p className="upload-status" data-state={uploadStatus.state} aria-live="polite">
+              {uploadStatus.state === "success" ? <CheckCircle2 aria-hidden="true" size={15} /> : null}
+              {uploadStatus.state === "error" ? <AlertTriangle aria-hidden="true" size={15} /> : null}
+              {uploadStatus.message}
+            </p>
+            {!isDemoFixture ? (
+              <button type="button" className="cockpit-button cockpit-button--quiet" onClick={onReset}>
+                <RotateCcw aria-hidden="true" size={16} /> Restore bundled demo
+              </button>
+            ) : null}
+          </section>
+
+          <aside className="raw-data-note">
+            <ShieldCheck aria-hidden="true" size={18} />
+            <div>
+              <strong>Why JSON instead of raw Zarr?</strong>
+              <p>Raw EgoVerse Zarr needs Python feature extraction and clustering. Run the existing pipeline first, then upload its comparison payload here. The browser never pretends to score raw video by itself.</p>
+            </div>
+          </aside>
+
+          <section className="dataset-table-section" aria-labelledby="dataset-table-title">
+            <div className="drawer-section-title drawer-section-title--row">
+              <div><span>Dataset used</span><h3 id="dataset-table-title">Episode index</h3></div>
+              <small>{data.episodes.length} total</small>
+            </div>
+            <div className="dataset-table-wrap">
+              <table className="dataset-table">
+                <thead><tr><th>Episode</th><th>Set</th><th>Scene</th><th>Visual</th><th>Motion</th></tr></thead>
+                <tbody>
+                  {data.episodes.map((episode) => (
+                    <tr key={episode.id}>
+                      <td>{episode.id}</td>
+                      <td><span data-subset={episode.subset}>{episode.subset}</span></td>
+                      <td>{episode.scene.replaceAll("_", " ")}</td>
+                      <td>C{episode.visualCluster + 1}</td>
+                      <td>{episode.motionCluster >= 0 ? `C${episode.motionCluster + 1}` : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+  );
+}

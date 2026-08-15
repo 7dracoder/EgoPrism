@@ -8,7 +8,7 @@ export const voiceAnswers = {
   confidence:
     "EgoPrism resamples whole episodes 200 times to form 95 percent bootstrap confidence intervals. It declares a winner only when the intervals do not overlap and the score gap is at least two points. Otherwise it reports no clear difference.",
   evidence:
-    "Read the evidence in two parts. In the visual projection, each mark is an episode: outlined squares are Subset A, teal circles are Subset B, and the numeral is its visual cluster. Nearby marks have more similar image fingerprints, but the two axes have no standalone meaning and screen distance is not the score. In each occupancy row the upper bar is A, the lower bar is B, and the count is A slash B. The current fixture puts all 16 A episodes in cluster one, while B reaches all five visual clusters. Click a point for its episode readout, then inspect the episode cards. Filters change only what is visible; they never recompute the score.",
+    "The fixed cockpit has four evidence panels. The visual projection maps one episode per mark: outlined squares are A, teal circles are B, and the numeral is its visual cluster. Nearby marks have more similar image fingerprints, but screen distance is not the score. The cluster panel compares visual and motion occupancy with an upper A bar and lower B bar. The score panel shows visual and motion entropy plus bootstrap intervals. The episode inspector connects a selected point to its frame and metrics. Uploaded comparison JSON replaces all four panels without using a language model to score anything.",
   visual:
     "The visual signal samples eight front-camera frames per episode. It uses stored DINO vectors when available, L2-normalizes and mean-pools them, then compares cluster coverage across the pooled subsets. Subset B covers five visual clusters in the current demonstration, while A covers one.",
   motion:
@@ -22,7 +22,7 @@ export const voiceAnswers = {
   track:
     "EgoPrism is the Track 2 quantitative diversity measurement project. Its core claim is that, for a matched task and dataset size, one slice can cover more distinct visual contexts and manipulation patterns than another. It is a data-selection signal, not a downstream policy evaluation.",
   dashboard:
-    "The dashboard follows Hallmark's modern-minimal Workbench structure with a Cobalt theme. It leads with the decision, then exposes score anatomy, visual and motion evidence, the exact method, this voice assistant, and traceable episodes. The interface is responsive and includes keyboard command navigation.",
+    "The Hallmark Cobalt dashboard is a fixed single-screen workbench with no page-level vertical scrolling. Desktop shows four panels at once: visual projection, visual and motion cluster coverage, score anatomy with confidence intervals, and an episode inspector. Smaller screens use four tabs while staying within the viewport. Dataset details and validated JSON upload open from the right, and the continuous ElevenLabs assistant uses a separate side drawer.",
 } as const;
 
 export type VoiceTopic = keyof typeof voiceAnswers;

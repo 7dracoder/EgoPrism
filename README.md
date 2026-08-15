@@ -24,9 +24,10 @@ This is Track 2 (Quantitative Diversity Measurement). It is a data-selection sig
 ## Run the Hallmark dashboard
 
 The production UI is a Next.js 16 App Router app in `web/`. It uses Hallmark's
-modern-minimal Workbench structure and Cobalt theme, fetches the read-only Modal
-summary endpoint, and falls back to a bundled deterministic payload if Modal is
-temporarily unavailable.
+modern-minimal Workbench structure and Cobalt theme as a fixed viewport cockpit:
+the decision and four evidence panels stay on one screen with no page-level
+vertical scrolling. It fetches the read-only Modal summary endpoint and falls
+back to a bundled deterministic payload if Modal is temporarily unavailable.
 
 ```bash
 cd web
@@ -123,6 +124,8 @@ Lab, scene, and other metadata are filters and labels. They are not score inputs
 
 ## How to read the evidence
 
+- Desktop shows four panels simultaneously. Smaller screens use four panel tabs
+  while the app still stays inside one viewport.
 - The score rows show the 0–100 diversity score, its visual and motion
   components, and a 95% episode-bootstrap interval.
 - In the dark visual projection, each mark is an episode: outlined squares are
@@ -132,10 +135,27 @@ Lab, scene, and other metadata are filters and labels. They are not score inputs
 - Projection axes have no standalone semantic meaning, and screen distance is
   not the score. Clusters are fit in the standardized feature space; normalized
   cluster-occupancy entropy produces the score.
-- In each occupancy row, the upper bar is A, the lower bar is B, and the count
-  at right is `A / B`. The fixture has A in 1/5 visual clusters and B in 5/5.
-- Clicking a point reveals its episode metadata. Episode filters change only
-  what is shown; they never recompute the score.
+- The coverage panel shows both visual and motion occupancy. In each row, the
+  upper bar is A, the lower bar is B, and the count at right is `A / B`. The
+  fixture has A in 1/5 visual clusters and B in 5/5.
+- The score panel combines the component bars with a 0–100 confidence-interval
+  chart. The episode inspector connects a selected point to its frame, scene,
+  lab, cluster, novelty, and idle metrics.
+
+## Use another comparison
+
+Click **Dataset** in the top-right corner. The side drawer shows the complete
+episode index and accepts an EgoPrism comparison JSON up to 25 MB. A valid file
+immediately replaces the bundled fixture in all four panels for the current
+browser tab; **Restore bundled demo** switches back.
+
+This upload is intentionally the scored comparison payload, not raw Zarr. Raw
+EgoVerse data still needs the Python extraction and clustering pipeline first.
+The browser validates project identity, subset summaries, unique episode IDs,
+episode counts, cluster ranges, occupancy arrays, and method fields. Uploaded
+data stays local to the browser and is not sent to Vercel. Preview images render
+when the payload uses a bundled `/episodes/...` path or an embedded data URI;
+otherwise the inspector displays a clear placeholder.
 
 The full plain-language walkthrough, including the exact fixture occupancy and
 what not to infer from UMAP, is in `../EGOPRISM_COMPLETE_PROJECT_GUIDE.md` in

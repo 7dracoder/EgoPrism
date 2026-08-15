@@ -37,13 +37,25 @@ Hallmark's **Cobalt** theme, N13 command navigation, Ft2 footer, real episode
 frames, semantic OKLCH tokens, restrained motion, strong focus states, and
 responsive layouts from 320 px upward.
 
-The dashboard must remain functional, not decorative:
+The dashboard must remain functional, not decorative. The shipped interaction
+contract is a fixed, single-viewport evidence cockpit:
 
-- Lead with the decision, score gap, and 95% bootstrap context.
-- Show the A/B score anatomy before the visual evidence.
-- Make projection points clickable and episode examples filterable.
-- Keep the exact scoring method and limitation in the page.
-- Provide command navigation with `⌘/Ctrl + K` and a mobile search control.
+- Lead with a compact decision strip containing the winner, score gap, and 95%
+  bootstrap context.
+- Keep four visualization sections visible together on desktop: embedding,
+  cluster coverage, score confidence, and representative episodes.
+- Use four compact tabs on small screens so each visualization still fits without
+  page-level vertical scrolling.
+- Make projection points and episode thumbnails selectable and linked to the same
+  active episode.
+- Default to the bundled 32-episode fixture, but accept a schema-compatible
+  comparison JSON file and immediately redraw every panel in the browser.
+- Put the active dataset summary, upload/reset controls, and complete episode
+  table in an internally scrolling right-side drawer.
+- Put the continuous ElevenLabs analyst in a separate right-side drawer so voice
+  controls never crowd the evidence grid.
+- Keep the exact scoring method and limitation in the repository guide and voice
+  knowledge, while using concise chart-level explanations in the cockpit.
 - Keep ElevenLabs behind a Vercel server route; never expose the key to the browser.
 - Use the generated `/og.png` social card in Open Graph and Twitter metadata.
 
@@ -55,6 +67,10 @@ The dashboard must remain functional, not decorative:
 - [x] Serializable web payload and regression tests.
 - [x] Modal read-only comparison API backed by the `egoverse-data` volume.
 - [x] Hallmark/Cobalt Next.js dashboard with real episode frames.
+- [x] Fixed single-viewport four-panel visualization cockpit with no page-level
+  scrolling at supported desktop and mobile sizes.
+- [x] Browser-local comparison JSON upload, strict runtime validation, demo reset,
+  dataset summary, and complete dataset side drawer.
 - [x] Server-only ElevenLabs briefing route and non-secret health endpoint.
 - [x] Continuous grounded voice analyst with automatic listen-after-answer,
   transcript, explicit stop control, and typed fallback.
@@ -77,7 +93,8 @@ The dashboard must remain functional, not decorative:
 - Vercel `/api/voice-agent/speak` returns ElevenLabs MP3 audio while the API key
   remains server-only.
 - The live dashboard has no console errors, no horizontal overflow at 320, 375,
-  414, 768, 1280, and 1920 px, and all clickable labels remain on one line.
+  414, 768, 1280, and 1920 px, no page-level vertical overflow, and all clickable
+  labels remain on one line. Drawer contents may scroll internally.
 - Hallmark's pre-emit critique and 58-gate slop test pass before handoff.
 
 ## Before submission
@@ -91,3 +108,13 @@ The dashboard must remain functional, not decorative:
 5. Rotate the ElevenLabs key after the demo because it previously appeared in
    plaintext during local setup; keep the replacement restricted to TTS with
    conservative usage limits.
+
+## Data input boundary
+
+The cockpit accepts the serialized `ComparisonData` JSON contract produced by
+the EgoPrism pipeline. This is the safe browser input because it contains scored
+episode summaries and visualization coordinates, not the large raw tensors.
+Raw EgoVerse zarr data must first run through the Python/Modal extraction and
+scoring pipeline; the generated comparison JSON can then be opened from the
+dataset drawer. Uploads stay in the current browser session and are never sent
+to ElevenLabs.
